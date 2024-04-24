@@ -1,0 +1,45 @@
+{% extends 'Admin_Login_App/base.html' %}
+{% load static %}
+{% load bootstrap_icons %}
+
+{% block content %}
+<div class="container">
+    <div class="container-fluid">        
+        <div class="row">
+            <div class="col-12 mx-auto">
+                <div class="panel panel-default">
+                    <div class="panel-heading mb-4">
+                        <h3 class="panel-title"> {% bs_icon 'pencil' %}  <span class="Add_Course">Add Courses</span></h3>
+                    </div>
+                    <div class="panel-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="title">Title</label>
+                                <input type="text" name="Title" id="title" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="id_description">Description</label>
+                                <textarea id="id_description" name="Description" class="form-control"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="technologies">Technologies</label>
+                                <input type="text" name="Technologies" id="technologies" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label for="image">Images</label>
+                                <input type="file" name="Images" id="images" class="form-control-file">
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <input type="checkbox" name="status" id="status" checked>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,17 @@
+/* side navbar */
+
+.container-fluid .nav-div h6 {
+    text-transform: uppercase;
+    font-size: 16px;
+}
+
+.flex-column {
+    background-color: #242d37;
+    height: 100%;
+    width: 100%;
+}
+
+.nav li a {
+    color: #b3cbdd;
+    font-size: 16px;
+}
