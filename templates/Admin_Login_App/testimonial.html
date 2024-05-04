@@ -3,7 +3,7 @@
 {% load bootstrap_icons %}
 
 <!-- title -->
-{% block title %} Courses {% endblock %}
+{% block title %} Testimonial {% endblock %}
 
 <!-- Link css -->
 {% block css %}
@@ -11,8 +11,7 @@
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 <link rel="stylesheet" href="{% static 'css/side_navbar.css' %}">
 <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
-<link rel="stylesheet" href="{% static 'css/course_page.css' %}">
-<link rel="stylesheet" href="{% static 'css/course_list.css' %}">
+<link rel="stylesheet" href="{% static 'css/partners_list.css' %}">
 {% endblock %}
 
 <!-- link js -->
@@ -43,23 +42,23 @@
         <div class="col-10 pb-5" style="background-color: #f6f6f6;">
             <div class="row">
 
-                {% block navbar %}
+                {% block testimonial_navbar %}
 
                 <div id="navbar-content">
 
-                    {% include 'Admin_Login_App/navbar.html' %}
+                    {% include 'Admin_Login_App/testimonial_navbar.html' %}
 
                 </div>
 
                 {% endblock %}
 
 
-                {% block course_list %}
+                {% block testimonial_list %}
 
-                <div id="course-content">
+                <div id="testimonial-content">
                     <!-- This is where the course content will be displayed -->
 
-                    {% include 'Admin_Login_App/course_list.html' %}
+                    {% include 'Admin_Login_App/testimonial_list.html' %}
 
                 </div>
                 {% endblock %}
@@ -75,21 +74,10 @@
 
 {% block scripts %}
 <script>
-    // v1
-    // Function to check all checkboxes
-    function checkAll() {
-        var checkboxes = document.querySelectorAll('.check');
-        var checkallCheckbox = document.getElementById('checkall');
-
-        checkboxes.forEach(function (checkbox) {
-            checkbox.checked = checkallCheckbox.checked;
-        });
-    }
-
-    function loadCoursePage() {
-        loadNavbarPage()
+    
+    function loadTestimonialPage() {
         // Specify the URL from which to fetch the new content
-        const url = "{% url 'course_page' %}";
+        const url = "{% url 'testimonial_form' %}";
 
         // Fetch content from the URL using the provided URL
         fetch(url)
@@ -101,26 +89,7 @@
             })
             .then(html => {
                 // Replace the HTML content of a specific div with the fetched data
-                document.getElementById('course-content').innerHTML = html;
-            })
-            .catch(error => console.error('Fetch error:', error));
-    }
-
-    function loadNavbarPage() {
-        // Specify the URL from which to fetch the new content
-        const url = "{% url 'navbar_save_course' %}";
-
-        // Fetch content from the URL using the provided URL
-        fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.text();
-            })
-            .then(html => {
-                // Replace the HTML content of a specific div with the fetched data
-                document.getElementById('navbar-content').innerHTML = html;
+                document.getElementById('testimonial-content').innerHTML = html;
             })
             .catch(error => console.error('Fetch error:', error));      
     }

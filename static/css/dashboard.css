@@ -13,7 +13,6 @@
 }
 
 .Dashboard h1{
-    font-family: 'Open Sans', sans-serif;
     font-weight: 300;
     font-size: 30px;
     color: #4c4d5a;
@@ -32,6 +31,10 @@
     font-size: 14px;
     padding: 0px;
     margin: 0px;
+}
+
+.navbar-div li:last-child a {
+    color: #1e91cf;
 }
 
 .cards {

@@ -18,6 +18,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 BASE_DIR1 = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES_DIR = os.path.join(BASE_DIR1, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR1, 'static')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 
@@ -31,17 +33,6 @@ SECRET_KEY = 'django-insecure-!xstl!05c*ltv59bk5ivu0+%1dq+eshy@9am&8#_w6gh81-qy6
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
-# CKEditor Settings
-CKEDITOR_CONFIGS = {
-    'default': {
-        'toolbar': 'full',
-        'height': 300,
-         'extraPlugins': ','.join([
-                'codesnippet',]),
-        # Add more configuration options as needed
-    }
-}
 
 AUTH_USER_MODEL = "Admin_Login_App.AdminLogin"
 
@@ -59,7 +50,6 @@ INSTALLED_APPS = [
     'django_phonenumbers',
     'bootstrap5',
     'django_bootstrap_icons',
-    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -142,7 +132,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]

@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import AdminLogin
+from .models import AdminLogin, partners_logo, courses
 
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
@@ -19,3 +19,14 @@ class RegistrationForm(forms.ModelForm):
             user.save()
 
         return user
+    
+
+class PartnersLogoForm(forms.ModelForm):
+    class Meta:
+        model = partners_logo
+        fields = ['name', 'logo']
+
+class UpdataCourseForm(forms.ModelForm):
+    class Meta:
+        model = courses
+        fields = ['Title', 'Technologies', 'status']

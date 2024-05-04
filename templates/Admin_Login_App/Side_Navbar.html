@@ -8,16 +8,18 @@
     </div>
     <ul class="nav flex-column">
         <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="#">{% bs_icon 'speedometer2'%} Dashboard </a>
+            <a class="nav-link active" aria-current="page" href="/dashboard">
+                {% bs_icon 'speedometer2'%} Dashboard
+            </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">{% bs_icon 'speedometer2'%} Courses </a>
+            <a class="nav-link" href="/courses">{% bs_icon 'speedometer2'%} Courses </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">{% bs_icon 'speedometer2'%} Placement Partners </a>
+            <a class="nav-link" href="/partners">{% bs_icon 'speedometer2'%} Placement Partners </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" aria-disabled="true">{% bs_icon 'speedometer2'%} Testimonial</a>
+            <a class="nav-link" href="/testimonial">{% bs_icon 'speedometer2'%} Testimonial</a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="#">{% bs_icon 'speedometer2'%} Placement Stories </a>
@@ -32,11 +34,17 @@
             <a class="nav-link" href="#">{% bs_icon 'speedometer2'%} Careers </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="#">{% bs_icon 'speedometer2'%} Settings  </a>
+            <a class="nav-link" href="#">{% bs_icon 'speedometer2'%} Settings </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" aria-disabled="true">{% bs_icon 'speedometer2'%} Report</a>
         </li>
     </ul>
 </div>
+
+{% endblock %}
+
+{% block scripts%}
+
+
 {% endblock %}

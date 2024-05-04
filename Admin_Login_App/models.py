@@ -10,7 +10,26 @@ def getFileName(request,filename):
     now_time = datetime.datetime.now().strftime('%Y%m%d%X')
     new_filename = "{}{}".format(now_time,filename)
     return os.path.join('media/',new_filename)
+ 
+def getlogo(request, filename):
+    now_time = datetime.datetime.now().strftime('%Y%m%d%X')
+    new_filename = "{}{}".format(now_time,filename)
+    return os.path.join('media/',new_filename)
 
+def picture(request, filename):
+    now_time = datetime.datetime.now().strftime('%Y%m%d%X')
+    new_filename = "{}{}".format(now_time,filename)
+    return os.path.join('media/',new_filename)
+
+def video(request, filename):
+    now_time = datetime.datetime.now().strftime('%Y%m%d%X')
+    new_filename = "{}{}".format(now_time,filename)
+    return os.path.join('media/',new_filename)
+
+def blog_images(request, filename):
+    now_time = datetime.datetime.now().strftime('%Y%m%d%X')
+    new_filename = "{}{}".format(now_time,filename)
+    return os.path.join('media/',new_filename)
 
 class AdminLoginManager(BaseUserManager):
     def create_user(self, username, email, password=None):
@@ -61,11 +80,76 @@ class courses(models.Model):
     Description = models.TextField()
     Technologies = models.CharField(max_length=150)
     Images = models.ImageField(upload_to= getFileName, blank=False)
-    STATUS_CHOICES = (
-    (0, 'enabled'),
-    (1, 'disabled'),
-    )
-    status = models.IntegerField(choices=STATUS_CHOICES, default=0)
+    status = models.BooleanField(default=True)
 
 class technologies(models.Model):
     Technologies = models.CharField(max_length=150)
+
+
+# placement partners
+
+class partners_logo(models.Model):
+    name = models.CharField(max_length=100, default=None)
+    logo = models.ImageField(upload_to=getlogo)
+    created_at=models.DateTimeField(auto_now_add=True)
+    modified_at=models.DateTimeField(auto_now=True)
+    created_by=models.IntegerField(null=True,blank=True)
+    modified_by=models.IntegerField(null=True)
+    is_active=models.BooleanField(default=True)
+    is_deleted=models.BooleanField(default=False)
+
+# testimonial 
+
+class Testimonial(models.Model):
+    student_name = models.CharField(max_length=100)
+    picture = models.ImageField(upload_to=picture, blank=False)
+    course = models.CharField(max_length=100)
+    date = models.DateField()
+    testimonial = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    created_by = models.IntegerField(null=True,blank=True)
+    modified_by = models.IntegerField(null=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+# Placement Stories
+
+class PlacementStories(models.Model):
+    student_name = models.CharField(max_length=100)
+    course = models.CharField(max_length=100)
+    testimonial_video = models.FileField(upload_to=video, blank=False)
+    date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    created_by = models.IntegerField(null=True,blank=True)
+    modified_by = models.IntegerField(null=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+
+# FAQ
+
+class FAQ(models.Model):
+    question = models.CharField(max_length=255)
+    answer = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    created_by = models.IntegerField(null=True,blank=True)
+    modified_by = models.IntegerField(null=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+# Blog
+
+class Blog(models.Model):
+    images = models.ImageField(upload_to=blog_images, blank=False)
+    title = models.CharField(max_length=100)
+    description = models.TextField()
+    course = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    created_by = models.IntegerField(null=True,blank=True)
+    modified_by = models.IntegerField(null=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
