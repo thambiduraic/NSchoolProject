@@ -26,7 +26,9 @@ class PartnersLogoForm(forms.ModelForm):
         model = partners_logo
         fields = ['name', 'logo']
 
-class UpdataCourseForm(forms.ModelForm):
-    class Meta:
-        model = courses
-        fields = ['Title', 'Technologies', 'status']
+class UpdataCourseForm(forms.Form):
+    Title = forms.CharField(max_length=100)
+    Description = forms.CharField(widget=forms.Textarea)
+    Technologies = forms.CharField(max_length=150)
+    Images = forms.ImageField()
+    status = forms.BooleanField()

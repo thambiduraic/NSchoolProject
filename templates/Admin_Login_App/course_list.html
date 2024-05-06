@@ -21,11 +21,13 @@
 
                                 <th scope="col">Title</th>
                                 
+                                <th scope="col">Description</th>
+
                                 <th scope="col">Technologies</th>
                                 
-                                <th scope="col">status</th>
-                                
                                 <th scope="col">Images</th>
+                                
+                                <th scope="col">status</th>
                                 
                                 <th scope="col" class="text-end">Action</th>
                                 
@@ -40,11 +42,16 @@
 
                                 <td>{{x.Title}}</td>
                                 
+                                <td>{{x.Description}}</td>
+
                                 <td>{{x.Technologies}}</td>
                                 
+                                <td>
+                                    <img src="{{ x.Images.url }}" alt="connect" style="max-height:50px">
+                                </td>
+
                                 <td>{{x.status}}</td>
                                 
-                                <td><img src="{{x.Images}}"></td>
 
                                 <td class="text-end" ><a href="/update_course/{{x.id}}" id="update" class="btn btn-class" href="#">{% bs_icon 'pencil' %}</a></td>
                             </tr>

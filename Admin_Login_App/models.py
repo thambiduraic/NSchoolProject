@@ -9,7 +9,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 def getFileName(request,filename):
     now_time = datetime.datetime.now().strftime('%Y%m%d%X')
     new_filename = "{}{}".format(now_time,filename)
-    return os.path.join('media/',new_filename)
+    return os.path.join('Images/',new_filename)
  
 def getlogo(request, filename):
     now_time = datetime.datetime.now().strftime('%Y%m%d%X')
@@ -19,12 +19,12 @@ def getlogo(request, filename):
 def picture(request, filename):
     now_time = datetime.datetime.now().strftime('%Y%m%d%X')
     new_filename = "{}{}".format(now_time,filename)
-    return os.path.join('media/',new_filename)
+    return os.path.join('picture/',new_filename)
 
 def video(request, filename):
     now_time = datetime.datetime.now().strftime('%Y%m%d%X')
     new_filename = "{}{}".format(now_time,filename)
-    return os.path.join('media/',new_filename)
+    return os.path.join('video/',new_filename)
 
 def blog_images(request, filename):
     now_time = datetime.datetime.now().strftime('%Y%m%d%X')
