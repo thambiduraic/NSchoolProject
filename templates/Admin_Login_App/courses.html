@@ -67,7 +67,6 @@
 
             </div>
         </div>
-
     </div>
 </div>
 
@@ -125,5 +124,22 @@
             .catch(error => console.error('Fetch error:', error));      
     }
 
+    function updateCoursePage(url) {
+        loadNavbarPage()
+        print(url)
+        // Fetch content from the URL using the provided URL
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Replace the HTML content of a specific div with the fetched data
+                document.getElementById('course-content').innerHTML = html;
+            })
+            .catch(error => console.error('Fetch error:', error));      
+    }
 </script>
 {% endblock %}

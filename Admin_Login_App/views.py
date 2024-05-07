@@ -6,6 +6,7 @@ from .forms import  RegistrationForm, PartnersLogoForm, UpdataCourseForm
 from .models import AdminLogin, courses, Testimonial, FAQ, Blog, partners_logo, PlacementStories
 # from .utils.validation import validate_course_data
 from django.contrib import messages
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 
@@ -39,7 +40,8 @@ def navbar_save_view(request):
 
 # courses view
 def courses_view(request):
-    data = courses.objects.all()
+    # data = courses.objects.all()
+    data = courses.objects.all().order_by('Title')
     if request.method == 'POST':
         try:
             title = request.POST.get('Title')
@@ -47,8 +49,6 @@ def courses_view(request):
             technologies = request.POST.get('Technologies')
             images = request.FILES.get('images')
             status = request.POST.get('status')
-
-            print(title)
             
             courses_data = courses(
                 Title = title,
@@ -63,32 +63,49 @@ def courses_view(request):
         
         except Exception as e:
             print("Error saving courses:", e)
+    
+    paginator = Paginator(data, 5)  # Show 5 contacts per page.
 
-    return render(request, 'Admin_Login_App/courses.html', {'datas': data})  
+    page_number = request.GET.get("page")
+
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_obj = paginator.page(paginator.num_pages)
+    return render(request, 'Admin_Login_App/courses.html', {'page_obj': page_obj})
+
+    # return render(request, 'Admin_Login_App/courses.html', {'datas': data, "page_obj": page_obj})  
 
 # courses update
 def update_course(request, id):
-    # obj = courses.objects.get(id=id)
-    # if request.method == 'POST':
-    #     form = UpdataCourseForm(request.POST)
-    #     if form.is_valid():
-    #         title_value = form.cleaned_data['Title']
-    #         description_value = form.cleaned_data['Description']
-    #         technologies_value = form.cleaned_data['Technologies']
-    #         images_value = form.cleaned_data['Images']
-    #         status_value = form.cleaned_data['status']
+    obj = courses.objects.get(id=id)
+    print(obj)
+    if request.method == 'POST':
+        try:
+            title = request.POST.get('Title')
+            description = request.POST.get('Description')
+            technologies = request.POST.get('Technologies')
+            images = request.FILES.get('images')
+            status = request.POST.get('status')
 
-    #         # Update the object attributes
-    #         obj.Title = title_value
-    #         obj.Description = description_value
-    #         obj.Technologies = technologies_value
-    #         obj.Images = images_value
-    #         obj.status = status_value
-
-    #         # Save the changes to the object
-    #         obj.save()
-    #         return redirect('/courses')       
-    return render(request, 'Admin_Login_App/course_update.html') 
+            if title and description and technologies and images and status:
+                courses_data = courses(
+                Title = title,
+                Description = description,
+                Technologies = technologies,
+                Images = images,
+                status = status,
+            )
+            courses_data.save()
+            return redirect('courses')
+        
+        except Exception as e:
+            print("Error saving courses:", e)
+    return render(request, 'Admin_Login_App/course_update.html', {'datas': obj}) 
 
 # delete courses
 def delete_course(request, id):
@@ -101,7 +118,7 @@ def delete_course(request, id):
 # Partners view
 
 def partners_view(request):
-    form = partners_logo.objects.all()
+    form = partners_logo.objects.all().order_by('name')
     if request.method == 'POST':
         try:
             name = request.POST.get('student_name')
@@ -117,7 +134,20 @@ def partners_view(request):
             return redirect('partners')
         except Exception as e:
             print("Error saving partners:", e)
-    return render(request, 'Admin_Login_App/placement_partners.html', {'form': form})
+
+    paginator = Paginator(form, 5)  # Show 5 contacts per page.
+
+    page_number = request.GET.get("page")
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_obj = paginator.page(paginator.num_pages)
+    return render(request, 'Admin_Login_App/placement_partners.html', {'page_obj': page_obj})
+    # return render(request, 'Admin_Login_App/placement_partners.html', {'form': form})
 
 # partners logo
 
@@ -129,7 +159,8 @@ def partners_logo_view(request):
 # testimonial_view
 
 def testimonial_view(request):
-    testimonials = Testimonial.objects.all()
+    # testimonials = Testimonial.objects.all()
+    testimonials = Testimonial.objects.all().order_by('student_name')
     if request.method == 'POST':
         try:
             student_name = request.POST.get('student_name')
@@ -151,7 +182,20 @@ def testimonial_view(request):
             return redirect('testimonial')
         except Exception as e:
             print("Error saving testimonial:", e)
-    return render(request, 'Admin_Login_App/testimonial.html', {'testimonials': testimonials})
+
+    paginator = Paginator(testimonials, 5)  # Show 5 contacts per page.
+
+    page_number = request.GET.get("page")
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_obj = paginator.page(paginator.num_pages)
+    return render(request, 'Admin_Login_App/testimonial.html', {'page_obj': page_obj})
+    # return render(request, 'Admin_Login_App/testimonial.html', {'testimonials': testimonials})
 
 
 # testimonial_form_view
@@ -162,7 +206,7 @@ def testimonial_form_view(request):
 # Placement Stories
 
 def Placement_Stories_view(request):
-    form = PlacementStories.objects.all()
+    form = PlacementStories.objects.all().order_by('student_name')
     if request.method == 'POST':
         try:
             student_name = request.POST.get('student_name')
@@ -182,7 +226,22 @@ def Placement_Stories_view(request):
             return redirect('placement_stories')
         except Exception as e:
             print("Error saving testimonial:", e)
-    return render(request, 'Admin_Login_App/placement_stories.html', {'form':form})
+    
+    paginator = Paginator(form, 5)  # Show 5 contacts per page.
+
+    page_number = request.GET.get("page")
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_obj = paginator.page(paginator.num_pages)
+
+    return render(request, 'Admin_Login_App/placement_stories.html', {'page_obj': page_obj})
+
+    # return render(request, 'Admin_Login_App/placement_stories.html', {'form':form})
 
 # placement stories form
 
@@ -192,7 +251,7 @@ def stories_form(request):
 # FAQ
 
 def faq(request):
-    data = FAQ.objects.all()
+    data = FAQ.objects.all().order_by('question')
     if request.method == 'POST':
         question = request.POST.get('question')
         answer = request.POST.get('answer')
@@ -206,8 +265,22 @@ def faq(request):
             # Handle the case where either question or answer is missing
             error_message = "Both question and answer are required."
             return render(request, 'Admin_Login_App/faq_add_form.html', {'error_message': error_message})
+    
+    paginator = Paginator(data, 5)  # Show 5 contacts per page.
 
-    return render(request, 'Admin_Login_App/Faq.html', {'datas': data})
+    page_number = request.GET.get("page")
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_obj = paginator.page(paginator.num_pages)
+
+    return render(request, 'Admin_Login_App/Faq.html', {'page_obj': page_obj})
+
+    # return render(request, 'Admin_Login_App/Faq.html', {'datas': data})
 
 
 def faq_add_form(request):
@@ -229,7 +302,20 @@ def blog_view(request):
             blog_data.save()
             return redirect('blog')
 
-    return render(request, 'Admin_Login_App/blog.html', {'datas': data})
+    paginator = Paginator(data, 5)  # Show 5 contacts per page.
+
+    page_number = request.GET.get("page")
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_obj = paginator.page(paginator.num_pages)
+
+    return render(request, 'Admin_Login_App/blog.html', {'page_obj': page_obj})
+    # return render(request, 'Admin_Login_App/blog.html', {'datas': data})
 
 def blog_form(request):
     return render(request, 'Admin_Login_App/blog_add_form.html')
@@ -314,3 +400,4 @@ def user_logout(request):
     if request.user.is_authenticated:
         django.contrib.auth.logout(request)
         return redirect('home')
+    

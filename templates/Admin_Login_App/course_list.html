@@ -16,48 +16,71 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                
-                                <th scope="col" class="text-center"><input type="checkbox" id="checkall" onclick="checkAll()"></th>
+
+                                <th scope="col" class="text-center"><input type="checkbox" id="checkall"
+                                        onclick="checkAll()"></th>
 
                                 <th scope="col">Title</th>
-                                
+
                                 <th scope="col">Description</th>
 
                                 <th scope="col">Technologies</th>
-                                
+
                                 <th scope="col">Images</th>
-                                
+
                                 <th scope="col">status</th>
-                                
+
                                 <th scope="col" class="text-end">Action</th>
-                                
+
                             </tr>
                         </thead>
                         <tbody>
 
-                            {% for x in datas %}
+                            {% for x in page_obj %}
                             <tr>
 
-                                <td class="text-center"><input type="checkbox" class="check" name="id" value="{{x.id}}"></td>
+                                <td class="text-center"><input type="checkbox" class="check" name="id" value="{{x.id}}">
+                                </td>
 
                                 <td>{{x.Title}}</td>
-                                
+
                                 <td>{{x.Description}}</td>
 
                                 <td>{{x.Technologies}}</td>
-                                
+
                                 <td>
                                     <img src="{{ x.Images.url }}" alt="connect" style="max-height:50px">
                                 </td>
 
                                 <td>{{x.status}}</td>
-                                
 
-                                <td class="text-end" ><a href="/update_course/{{x.id}}" id="update" class="btn btn-class" href="#">{% bs_icon 'pencil' %}</a></td>
+
+                                <td class="text-end">
+                                    <button href="update_course/{{x.id}}"
+                                        onclick="updateCoursePage(`{% url 'update_course' x.id %}`)"
+                                        class="btn btn-class">{% bs_icon 'pencil' %}</button>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                    <div class="pagination">
+                        <span class="step-links">
+                            {% if page_obj.has_previous %}
+                                <a href="?page=1">&laquo; first</a>
+                                <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                            {% endif %}
+                    
+                            <span class="current">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                            </span>
+                    
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}">next</a>
+                                <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>

@@ -8,7 +8,7 @@ urlpatterns = [
     path('dashboard', views.dashboard_view, name='dashboard'),
     path('courses', views.courses_view, name='courses'),
     path('course_page', views.course_page_view, name='course_page'),
-    path('update_course/<id>', views.update_course, name='update_course'),
+    path('update_course/<int:id>', views.update_course, name='update_course'),
     path('delete_course/<id>', views.delete_course),
     path('navbar_save_course', views.navbar_save_view, name='navbar_save_course'),
     path('partners_logo', views.partners_logo_view, name='partners_logo'),
