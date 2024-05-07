@@ -19,6 +19,16 @@ def decorator(func):
             return redirect('login')
     return inner
 
+# decorator for admin
+def decorator_admin(func):
+    def inner(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return func(request, *args, **kwargs)
+        else:
+            return redirect('admin_login')
+    return inner
+
+
 @decorator
 def home(request):
     return render(request, 'Admin_Login_App/home.html')
@@ -39,6 +49,7 @@ def navbar_save_view(request):
     return render(request, 'Admin_Login_App/navbar_save_course.html')
 
 # courses view
+@decorator_admin
 def courses_view(request):
     # data = courses.objects.all()
     data = courses.objects.all().order_by('Title')
@@ -116,7 +127,7 @@ def delete_course(request, id):
 # ----------------------------------------------------------
 
 # Partners view
-
+@decorator_admin
 def partners_view(request):
     form = partners_logo.objects.all().order_by('name')
     if request.method == 'POST':
@@ -157,7 +168,7 @@ def partners_logo_view(request):
 # ----------------------------------------------------------------------------------------------------
 
 # testimonial_view
-
+@decorator_admin
 def testimonial_view(request):
     # testimonials = Testimonial.objects.all()
     testimonials = Testimonial.objects.all().order_by('student_name')
@@ -204,7 +215,7 @@ def testimonial_form_view(request):
     return render(request, 'Admin_Login_App/testimonial_form.html')
 
 # Placement Stories
-
+@decorator_admin
 def Placement_Stories_view(request):
     form = PlacementStories.objects.all().order_by('student_name')
     if request.method == 'POST':
@@ -249,7 +260,7 @@ def stories_form(request):
     return render(request, 'Admin_Login_App/stories_form.html')
 
 # FAQ
-
+@decorator_admin
 def faq(request):
     data = FAQ.objects.all().order_by('question')
     if request.method == 'POST':
@@ -288,7 +299,7 @@ def faq_add_form(request):
 
 
 # blog_view
-
+@decorator_admin
 def blog_view(request):
     data = Blog.objects.all()
     if request.method == 'POST':
@@ -390,14 +401,14 @@ def login_view(request):
 
 # Logout operation
 
-def logout(request):
+def logout_view(request):
     if request.user.is_authenticated:
-        django.contrib.auth.logout(request)
-        return redirect('admin_login')
+        logout(request)
+    return redirect('admin_login')
 
 
 def user_logout(request):
     if request.user.is_authenticated:
-        django.contrib.auth.logout(request)
-        return redirect('home')
+        logout(request)
+    return redirect('home')
     
