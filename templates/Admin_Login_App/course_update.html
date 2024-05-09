@@ -22,7 +22,7 @@
 
                             <div class="form-group">
                                 <label for="id_description">Description</label>
-                                <textarea id="id_description" name="Description" class="form-control" aria-valuetext="{{datas.Description}}"></textarea>
+                                <textarea id="id_description" name="Description" class="form-control">{{datas.Description}}</textarea>
                             </div>
                         
                             <div class="form-group">
@@ -30,9 +30,14 @@
                                 <input type="text" name="Technologies" id="technologies" class="form-control" value="{{ datas.Technologies }}">
                             </div>
 
-                            <div class="form-group">
-                                <label for="image">Images</label>
-                                <input type="file" name="Images" accept="image/*" id="images" value="{{datas.Images.url}}" class="form-control-file">
+                            <div class="form-group dropdown">
+                                <button type="button" class="btn btn-secondary" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="Right popover">
+                                    <img id="image" src="{{ datas.Images.url }}" alt="{{ datas.Images }}" width="100" height="100">
+                                </button>
+                                <div class="">
+                                    <button onclick="addImage()" data-toggle="tooltip" title="Add New" type="button" class="btn" id="plus"><span class="plus">+</span></button>
+                                    <button onclick="deleteImage()" data-toggle="tooltip" title="Delete" type="button" class="btn" id="trash">{% bs_icon 'trash'%}</button>
+                                </div>
                             </div>
                             
                             <div class="form-group">

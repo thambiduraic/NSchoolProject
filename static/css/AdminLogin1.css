@@ -29,6 +29,7 @@
     margin-top: 15px;
     padding: 5px !important;
     color: #c72f1d !important;
+    font-size: 14px;
 }
 
 .btn-div {
@@ -69,7 +70,7 @@ form{
     padding-top: 7%;
     font-weight: bold;
     color: #545454;
-    font-size: 13px;
+    font-size: 14px !important;
     display: inline-block;
     max-width: 100%;
     margin-bottom: 5px;

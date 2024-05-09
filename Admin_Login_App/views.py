@@ -3,10 +3,11 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth import login, authenticate, logout
 from .forms import  RegistrationForm, PartnersLogoForm, UpdataCourseForm
-from .models import AdminLogin, courses, Testimonial, FAQ, Blog, partners_logo, PlacementStories
+from .models import *
 # from .utils.validation import validate_course_data
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.exceptions import ObjectDoesNotExist
 
 # Create your views here.
 
@@ -93,30 +94,33 @@ def courses_view(request):
 
 # courses update
 def update_course(request, id):
-    obj = courses.objects.get(id=id)
-    print(obj)
-    if request.method == 'POST':
-        try:
-            title = request.POST.get('Title')
-            description = request.POST.get('Description')
-            technologies = request.POST.get('Technologies')
-            images = request.FILES.get('images')
-            status = request.POST.get('status')
+    try:
+        course = courses.objects.get(id=id)
+    except course.DoesNotExist:
+        return HttpResponse("Course not found", status=404)
 
-            if title and description and technologies and images and status:
-                courses_data = courses(
+    if request.method == 'POST':
+        # Retrieve form data
+        title = request.POST.get('Title')
+        description = request.POST.get('Description')
+        technologies = request.POST.get('Technologies')
+        status = request.POST.get('status')
+        images = request.FILES.get('images')
+
+        courses_data = courses(
                 Title = title,
                 Description = description,
                 Technologies = technologies,
                 Images = images,
                 status = status,
             )
-            courses_data.save()
-            return redirect('courses')
-        
-        except Exception as e:
-            print("Error saving courses:", e)
-    return render(request, 'Admin_Login_App/course_update.html', {'datas': obj}) 
+        courses_data.save()
+
+        return redirect('courses')
+
+    else:
+        # Render form with existing course data
+        return render(request, 'Admin_Login_App/course_update.html', {'datas': course}) 
 
 # delete courses
 def delete_course(request, id):
@@ -331,34 +335,104 @@ def blog_view(request):
 def blog_form(request):
     return render(request, 'Admin_Login_App/blog_add_form.html')
 
+# carrers view
+@decorator_admin
+def Careers_view(request):
+    data = Careers.objects.all().order_by('Job_Heading')
+    if request.method == 'POST':
+        try:
+            Logo = request.FILES.get('Logo')
+            Job_Heading = request.POST.get('Job_Heading')
+            Location = request.POST.get('Location')
+            Experience = request.POST.get('Experience')
+            No_Of_Openings = request.POST.get('No_Of_Openings')
+            Salary = request.POST.get('Salary')
+            Status = request.POST.get('Status')
+            Job_Type = request.POST.get('Job_Type')
+            Qualification = request.POST.get('Qualification')
+            Job_Description = request.POST.get('Job_Description')
+            Skills_Required = request.POST.get('Skills_Required')
+            
+            careers_data = Careers(
+                Logo = Logo,
+                Job_Heading = Job_Heading,
+                Location = Location,
+                Experience = Experience,
+                No_Of_Openings = No_Of_Openings,
+                Salary = Salary,
+                Status = Status,
+                Job_Type = Job_Type,
+                Qualification = Qualification,
+                Job_Description = Job_Description,
+                Skills_Required = Skills_Required,
+            )
+            careers_data.save()
+
+            return redirect('careers')
+        
+        except Exception as e:
+            print("Error saving careers:", e)
+    
+    paginator = Paginator(data, 5)  # Show 5 contacts per page.
+
+    page_number = request.GET.get("page")
+
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page_obj = paginator.page(paginator.num_pages)
+    return render(request, 'Admin_Login_App/Careers.html', {'page_obj': page_obj})
+    # return render(request, 'Admin_Login_App/Careers.html')
+
+def Careers_form_view(request):
+    return render(request, 'Admin_Login_App/careers_form.html')
+
 # admin login view    
 
 def admin_login_view(request):
     error_message = None  # Initialize error variable
+    username = ""  # Initialize username variable
 
     if request.method == 'POST':
         # Get the input data from the form
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        # Authenticate the user
-        user = authenticate(username=username, password=password)
+        # Check if username or password is empty
+        if username and not password or not username and password:
+            error_message = 'No match for Username and/or Password'
 
-        if user is not None:
-            # Log in the user
-            login(request, user)
-            
-            # Redirect based on user role
-            if user.is_admin:
-                return redirect('dashboard')  # Redirect to admin home page
-            else:
-                return redirect('admin_login')  # Redirect to user home page
+        elif not username or not password:
+            error_message = 'Username and Password are required.'
+        
         else:
-            # Authentication failed
-            error_message = 'Invalid username or password'
-    
+            # Authenticate the user
+            user = authenticate(username=username, password=password)
+
+            if user is not None:
+                # Check if the user account is active
+                if user.is_active:
+                    # Log in the user
+                    login(request, user)
+                    
+                    # Redirect based on user role
+                    if user.is_admin:
+                        return redirect('dashboard')  # Redirect to admin home page
+                    else:
+                        return redirect('admin_login')  # Redirect to user home page
+                else:
+                    # User account is inactive
+                    error_message = 'Your account is inactive. Please contact support for assistance.'
+            else:
+                # Authentication failed
+                error_message = 'Invalid Username or Password'
+
     # Render the login page with the error message if any
-    return render(request, 'Admin_Login_App/AdminLogin.html', {'error': error_message})
+    return render(request, 'Admin_Login_App/AdminLogin.html', {'error': error_message, 'username':username})
 
 
 # register view

@@ -14,7 +14,7 @@ def getFileName(request,filename):
 def getlogo(request, filename):
     now_time = datetime.datetime.now().strftime('%Y%m%d%X')
     new_filename = "{}{}".format(now_time,filename)
-    return os.path.join('media/',new_filename)
+    return os.path.join('logo/',new_filename)
 
 def picture(request, filename):
     now_time = datetime.datetime.now().strftime('%Y%m%d%X')
@@ -147,6 +147,28 @@ class Blog(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     course = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+    created_by = models.IntegerField(null=True,blank=True)
+    modified_by = models.IntegerField(null=True)
+    is_active = models.BooleanField(default=True)
+    is_deleted = models.BooleanField(default=False)
+
+# Careers
+
+class Careers(models.Model):
+    Logo = models.ImageField(upload_to=getlogo, blank=False)
+    Job_Heading = models.CharField(max_length=100)
+    Location = models.CharField(max_length=100)
+    Experience = models.CharField(max_length=100)
+    No_Of_Openings = models.CharField(max_length=100)
+    Salary = models.FloatField()
+    Status = models.BooleanField(default=True)
+
+    Job_Type = models.CharField(max_length=100)
+    Qualification = models.CharField(max_length=255)
+    Job_Description = models.TextField()
+    Skills_Required = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     created_by = models.IntegerField(null=True,blank=True)
