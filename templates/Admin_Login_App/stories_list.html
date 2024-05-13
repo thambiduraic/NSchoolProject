@@ -42,7 +42,7 @@
                                     <video src="{{x.testimonial_video.url}}" style="max-height:50px" controls></video>
                                 </td>
                                 <td>{{x.date}}</td>
-                                <td class="text-end"><a href="#" id="update" class="btn btn-class" href="#">{% bs_icon 'pencil' %}</a></td>
+                                <td class="text-end"><a onclick="updateStoriesPage(`{% url 'update_stories' x.id %}`)" id="update" class="btn btn-class">{% bs_icon 'pencil' %}</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

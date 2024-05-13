@@ -1,7 +1,7 @@
 {% load static %}
 {% load bootstrap_icons %}
 
-{% block Partners_list %}
+{% block partners_list %}
 <div class="container" id="course-content">
 
     <div class="row">
@@ -36,7 +36,7 @@
                                     <img src="{{ x.logo.url }}" alt="connect" style="max-height:50px">
                                 </td>
 
-                                <td class="text-end"><a href="#" id="update" class="btn btn-class" href="#">{% bs_icon 'pencil' %}</a></td>
+                                <td class="text-end"><a onclick="updatePartnersPage(`{% url 'update_partners' x.id %}`)" id="update" class="btn btn-class">{% bs_icon 'pencil' %}</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

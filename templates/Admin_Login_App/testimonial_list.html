@@ -46,7 +46,7 @@
                                 <td>
                                     <img src="{{ x.picture.url }}" alt="connect" style="max-height:50px">
                                 </td>
-                                <td class="text-end"><a href="#" id="update" class="btn btn-class" href="#">{% bs_icon 'pencil' %}</a></td>
+                                <td class="text-end"><a onclick="updateTestimonialPage(`{% url 'update_testimonial' x.id %}`)" id="update" class="btn btn-class">{% bs_icon 'pencil' %}</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

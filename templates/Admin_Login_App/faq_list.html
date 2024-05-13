@@ -38,7 +38,7 @@
                                 
                                 <td>{{x.answer}}</td>
 
-                                <td class="text-end" ><a href="#" id="update" class="btn btn-class" href="#">{% bs_icon 'pencil' %}</a></td>
+                                <td class="text-end" ><a onclick="loadFaqUpdatePage(`{% url 'faq_form_update' x.id %}`)"  id="update" class="btn btn-class">{% bs_icon 'pencil' %}</a></td>
                             </tr>
                             {% endfor %}
                         </tbody>

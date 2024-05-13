@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import AdminLogin, partners_logo, courses
+from .models import *
 
 class RegistrationForm(forms.ModelForm):
     password = forms.CharField(label='Password', widget=forms.PasswordInput)
@@ -32,3 +32,8 @@ class UpdataCourseForm(forms.Form):
     Technologies = forms.CharField(max_length=150)
     Images = forms.ImageField()
     status = forms.BooleanField()
+
+class FaqForm(forms.Form):
+    class Meta:
+        model = FAQ
+        fields = ['question', 'answer']

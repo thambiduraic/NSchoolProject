@@ -53,7 +53,7 @@
                 {% endblock %}
 
 
-                {% block Partners_list %}
+                {% block partners_list %}
 
                 <div id="partners-content">
                     <!-- This is where the course content will be displayed -->
@@ -74,10 +74,36 @@
 
 {% block scripts %}
 <script>
-    
+
+    function checkAll() {
+        var checkboxes = document.querySelectorAll('.check');
+        var checkallCheckbox = document.getElementById('checkall');
+
+        checkboxes.forEach(function (checkbox) {
+            checkbox.checked = checkallCheckbox.checked;
+        });
+    }
+
     function loadPartnersPage() {
         // Specify the URL from which to fetch the new content
         const url = "{% url 'partners_logo' %}";
+
+        // Fetch content from the URL using the provided URL
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text();
+            })
+            .then(html => {
+                // Replace the HTML content of a specific div with the fetched data
+                document.getElementById('partners-content').innerHTML = html;
+            })
+            .catch(error => console.error('Fetch error:', error));      
+    }
+
+    function updatePartnersPage(url) {
 
         // Fetch content from the URL using the provided URL
         fetch(url)

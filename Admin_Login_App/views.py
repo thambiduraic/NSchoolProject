@@ -1,8 +1,8 @@
 import django
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServerError
 from django.contrib.auth import login, authenticate, logout
-from .forms import  RegistrationForm, PartnersLogoForm, UpdataCourseForm
+from .forms import *
 from .models import *
 # from .utils.validation import validate_course_data
 from django.contrib import messages
@@ -61,7 +61,7 @@ def courses_view(request):
             technologies = request.POST.get('Technologies')
             images = request.FILES.get('images')
             status = request.POST.get('status')
-            
+            print(images)
             courses_data = courses(
                 Title = title,
                 Description = description,
@@ -94,10 +94,7 @@ def courses_view(request):
 
 # courses update
 def update_course(request, id):
-    try:
-        course = courses.objects.get(id=id)
-    except course.DoesNotExist:
-        return HttpResponse("Course not found", status=404)
+    course = courses.objects.get(id=id)
 
     if request.method == 'POST':
         # Retrieve form data
@@ -105,18 +102,24 @@ def update_course(request, id):
         description = request.POST.get('Description')
         technologies = request.POST.get('Technologies')
         status = request.POST.get('status')
-        images = request.FILES.get('images')
+        images = request.FILES.get('Images')
 
-        courses_data = courses(
-                Title = title,
-                Description = description,
-                Technologies = technologies,
-                Images = images,
-                status = status,
-            )
-        courses_data.save()
+        print(title)
 
-        return redirect('courses')
+        # Update the attributes of the existing course object
+        course.Title = title
+        course.Description = description
+        course.Technologies = technologies
+        course.status = status
+
+        # Check if a new image is provided
+        if images:
+            course.Images = images
+
+        # Save the updated course object
+        course.save()
+
+        return redirect('/courses')
 
     else:
         # Render form with existing course data
@@ -163,6 +166,25 @@ def partners_view(request):
         page_obj = paginator.page(paginator.num_pages)
     return render(request, 'Admin_Login_App/placement_partners.html', {'page_obj': page_obj})
     # return render(request, 'Admin_Login_App/placement_partners.html', {'form': form})
+
+# update partners
+def update_partners(request, id):
+    data = partners_logo.objects.get(id=id)
+    if request.method == 'POST':
+        # Retrieve form data
+        name = request.POST.get('name')
+        logo = request.FILES.get('logo')
+
+        # Update the object with new data
+        data.name = name
+        if logo:  # Check if a file was uploaded
+            data.logo = logo
+
+        # Save the updated object
+        data.save()
+        return redirect('/partners')
+    return render(request, 'Admin_Login_App/update_partners.html', {'datas': data})
+
 
 # partners logo
 
@@ -212,11 +234,39 @@ def testimonial_view(request):
     return render(request, 'Admin_Login_App/testimonial.html', {'page_obj': page_obj})
     # return render(request, 'Admin_Login_App/testimonial.html', {'testimonials': testimonials})
 
-
 # testimonial_form_view
 
 def testimonial_form_view(request):
     return render(request, 'Admin_Login_App/testimonial_form.html')
+
+# update testimonial
+
+def update_testimonial(request, id):
+    data = Testimonial.objects.get(id=id)
+    if request.method == 'POST':
+        try:
+            student_name = request.POST.get('student_name')
+            testimonial_text = request.POST.get('testimonial')
+            course = request.POST.get('course')
+            date = request.POST.get('date')
+            picture = request.FILES.get('picture')
+            
+            # Assign values to data object's fields
+            data.student_name = student_name
+            data.testimonial = testimonial_text
+            data.course = course
+            data.date = date
+
+            # Update picture if provided
+            if picture:
+                data.picture = picture
+            
+            data.save()
+            return redirect('/testimonial')
+        except Exception as e:
+            print("Error saving testimonial:", e)
+    return render(request, 'Admin_Login_App/testimonial_update.html', {'datas': data})
+
 
 # Placement Stories
 @decorator_admin
@@ -263,6 +313,32 @@ def Placement_Stories_view(request):
 def stories_form(request):
     return render(request, 'Admin_Login_App/stories_form.html')
 
+
+# stories update
+
+def update_stories(request, id):
+    data = PlacementStories.objects.get(id=id)
+    if request.method == 'POST':
+        try:
+            student_name = request.POST.get('student_name')
+            course = request.POST.get('course')
+            testimonial_video = request.FILES.get('testimonial_video')
+            date = request.POST.get('date')
+            
+            
+            data.student_name = student_name
+            data.course = course
+            data.testimonial_video = testimonial_video
+            data.date = date
+            
+            data.save()
+
+            return redirect('placement_stories')
+        
+        except Exception as e:
+            print("Error saving testimonial:", e)
+    return render(request, 'Admin_Login_App/stories_update.html', {'datas': data})
+
 # FAQ
 @decorator_admin
 def faq(request):
@@ -301,6 +377,33 @@ def faq(request):
 def faq_add_form(request):
     return render(request, 'Admin_Login_App/faq_add_form.html')
 
+# faq form update
+
+def faq_form_update(request, id):
+    faq = get_object_or_404(FAQ, id=id)
+
+    if request.method == 'POST':
+        question = request.POST.get('question')
+        answer = request.POST.get('answer')
+
+        if question and answer:
+            faq.question = question
+            faq.answer = answer
+            try:
+                faq.save()
+                return redirect('faq')
+            except Exception as e:
+                # Log the error
+                print(f"Error occurred while updating FAQ: {e}")
+                return HttpResponseServerError("An error occurred while updating FAQ. Please try again later.")
+        else:
+            # Handle missing question or answer
+            return HttpResponseBadRequest("Question and answer are required fields.")
+    else:
+        # Handle GET request to render update form
+        return render(request, 'Admin_Login_App/faq_update_form.html', {'data': faq})
+
+
 
 # blog_view
 @decorator_admin
@@ -334,6 +437,28 @@ def blog_view(request):
 
 def blog_form(request):
     return render(request, 'Admin_Login_App/blog_add_form.html')
+
+# update blog
+
+def update_blog(request, id):
+    data = Blog.objects.get(id=id)
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        description = request.POST.get('description')
+        course = request.POST.get('course')
+        images = request.FILES.get('images')
+
+        data.title=title
+        data.description=description
+        data.course=course
+
+        if images:
+            data.images=images
+        
+        data.save()
+        return redirect('blog')
+    return render(request, 'Admin_Login_App/update_blog.html', {'datas': data})
 
 # carrers view
 @decorator_admin
@@ -390,6 +515,79 @@ def Careers_view(request):
 
 def Careers_form_view(request):
     return render(request, 'Admin_Login_App/careers_form.html')
+
+# update career
+
+def update_career(request, id):
+    data = Careers.objects.get(id=id)
+    if request.method == 'POST':
+        try:
+            Logo = request.FILES.get('Logo')
+            Job_Heading = request.POST.get('Job_Heading')
+            Location = request.POST.get('Location')
+            Experience = request.POST.get('Experience')
+            No_Of_Openings = request.POST.get('No_Of_Openings')
+            Salary = request.POST.get('Salary')
+            Status = request.POST.get('Status')
+            Job_Type = request.POST.get('Job_Type')
+            Qualification = request.POST.get('Qualification')
+            Job_Description = request.POST.get('Job_Description')
+            Skills_Required = request.POST.get('Skills_Required')
+            
+            if Logo:
+                data.Logo = Logo
+            
+            data.Job_Heading = Job_Heading
+            data.Location = Location
+            data.Experience = Experience
+            data.No_Of_Openings = No_Of_Openings
+            data.Salary = Salary
+            data.Status = Status
+            data.Job_Type = Job_Type
+            data.Qualification = Qualification
+            data.Job_Description = Job_Description
+            data.Skills_Required = Skills_Required
+            
+            data.save()
+
+            return redirect('careers')
+        
+        except Exception as e:
+            print("Error saving careers:", e)
+    return render(request, 'Admin_Login_App/update_careers.html', {'datas': data})
+
+# report view
+def report_view(request):
+    if request.method == 'POST':
+        selected_value = int(request.POST.get('one'))
+        if selected_value == 1:
+            data = courses.objects.all()
+        elif selected_value == 2:
+            data = partners_logo.objects.all()
+        elif selected_value == 3:
+            data = Testimonial.objects.all()  
+        elif selected_value == 4:
+            data = PlacementStories.objects.all()  
+        elif selected_value == 5:
+            data = FAQ.objects.all()
+        elif selected_value == 6:
+            data = Blog.objects.all()
+        elif selected_value == 7:
+            data = Careers.objects.all()
+
+        paginator = Paginator(data, 5)
+
+        page_number = request.GET.get("page")
+        try:
+            page_obj = paginator.page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        return render(request, 'Admin_Login_App/Reports.html', {'page_obj': page_obj})
+
+    return render(request, 'Admin_Login_App/Reports.html')
 
 # admin login view    
 
@@ -485,4 +683,3 @@ def user_logout(request):
     if request.user.is_authenticated:
         logout(request)
     return redirect('home')
-    

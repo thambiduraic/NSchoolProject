@@ -74,6 +74,18 @@
 
 {% block scripts %}
 <script>
+
+    document.getElementById('imageInput').addEventListener('change', function (event) {
+        console.log("welcome")
+        var file = event.target.files[0]; // Get the selected file
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            document.getElementById('course_image').src = e.target.result; // Set the src of the image to the selected file's data URL
+        };
+
+        reader.readAsDataURL(file); // Read the selected file as a data URL
+    });
     // v1
     // Function to check all checkboxes
     function checkAll() {
@@ -121,12 +133,12 @@
                 // Replace the HTML content of a specific div with the fetched data
                 document.getElementById('navbar-content').innerHTML = html;
             })
-            .catch(error => console.error('Fetch error:', error));      
+            .catch(error => console.error('Fetch error:', error));
     }
 
     function updateCoursePage(url) {
         loadNavbarPage()
-        print(url)
+        
         // Fetch content from the URL using the provided URL
         fetch(url)
             .then(response => {
@@ -139,7 +151,7 @@
                 // Replace the HTML content of a specific div with the fetched data
                 document.getElementById('course-content').innerHTML = html;
             })
-            .catch(error => console.error('Fetch error:', error));      
+            .catch(error => console.error('Fetch error:', error));
     }
 </script>
 {% endblock %}
