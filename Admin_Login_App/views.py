@@ -9,6 +9,13 @@ from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import ObjectDoesNotExist
 
+import json
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.parsers import JSONParser, MultiPartParser
+from django.http import JsonResponse
+from Admin_Login_App.serializers import *
+from rest_framework.decorators import parser_classes, api_view
+
 # Create your views here.
 
 # decorator operation
@@ -683,3 +690,257 @@ def user_logout(request):
     if request.user.is_authenticated:
         logout(request)
     return redirect('home')
+
+
+# course api
+
+@csrf_exempt
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@parser_classes([MultiPartParser])
+def courseApi(request, id=0):
+    
+    if request.method == 'POST':
+        course_serializer = CourseSerializer(data = request.data)
+        if course_serializer.is_valid():
+            course_serializer.save()
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed to Add", safe=False)
+    
+    elif request.method == 'GET':
+        course = courses.objects.all()
+        course_serializer = CourseSerializer(course, many=True)
+        return JsonResponse(course_serializer.data, safe=False)
+    
+    elif request.method == 'PUT':
+        course_data = request.data
+        course = courses.objects.get(id=id)
+        course_serializer = CourseSerializer(course, data=course_data)
+        if course_serializer.is_valid():
+            course_serializer.save()
+            return JsonResponse("Updated Successfully", safe=False)
+        return JsonResponse("Failed to Update", safe=False)
+    
+    elif request.method == 'DELETE':
+        try:
+            account = courses.objects.get(id=id)
+            account.delete()
+            return JsonResponse("Deleted Successfully", safe=False)
+        except courses.DoesNotExist:
+            return JsonResponse("Account does not exist", status=404, safe=False)
+
+# Placement Partners Api
+
+@csrf_exempt
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@parser_classes([MultiPartParser])
+def placementPartnersApi(request, id=0):
+    
+    if request.method == 'POST':
+        placement_partners_serializer = PlacementPartnersSerializer(data = request.data)
+        if placement_partners_serializer.is_valid():
+            placement_partners_serializer.save()
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed to Add", safe=False)
+    
+    elif request.method == 'GET':
+        partners = partners_logo.objects.all()
+        placement_partners_serializer = PlacementPartnersSerializer(partners, many=True)
+        return JsonResponse(placement_partners_serializer.data, safe=False)
+    
+    elif request.method == 'PUT':
+        partners_data = request.data
+        partners = partners_logo.objects.get(id=id)
+        placement_partners_serializer = PlacementPartnersSerializer(partners, data=partners_data)
+        if placement_partners_serializer.is_valid():
+            placement_partners_serializer.save()
+            return JsonResponse("Updated Successfully", safe=False)
+        return JsonResponse("Failed to Update", safe=False)
+    
+    elif request.method == 'DELETE':
+        try:
+            partners = partners_logo.objects.get(id=id)
+            partners.delete()
+            return JsonResponse("Deleted Successfully", safe=False)
+        except courses.DoesNotExist:
+            return JsonResponse("Account does not exist", status=404, safe=False)
+
+
+# Testimonial Api
+
+@csrf_exempt
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@parser_classes([MultiPartParser])
+def testimonialApi(request, id=0):
+    
+    if request.method == 'POST':
+        testimonial_serializer = TestimonialSerializer(data = request.data)
+        if testimonial_serializer.is_valid():
+            testimonial_serializer.save()
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed to Add", safe=False)
+    
+    elif request.method == 'GET':
+        testimonial = Testimonial.objects.all()
+        testimonial_serializer = TestimonialSerializer(testimonial, many=True)
+        return JsonResponse(testimonial_serializer.data, safe=False)
+    
+    elif request.method == 'PUT':
+        testimonial_data = request.data
+        testimonial = Testimonial.objects.get(id=id)
+        testimonial_serializer = TestimonialSerializer(testimonial, data=testimonial_data)
+        if testimonial_serializer.is_valid():
+            testimonial_serializer.save()
+            return JsonResponse("Updated Successfully", safe=False)
+        return JsonResponse("Failed to Update", safe=False)
+    
+    elif request.method == 'DELETE':
+        try:
+            testimonial = Testimonial.objects.get(id=id)
+            testimonial.delete()
+            return JsonResponse("Deleted Successfully", safe=False)
+        except courses.DoesNotExist:
+            return JsonResponse("Account does not exist", status=404, safe=False)
+
+# PlacementStories Api
+
+@csrf_exempt
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@parser_classes([MultiPartParser])
+def placementStoriesApi(request, id=0):
+    
+    if request.method == 'POST':
+        placement_stories_serializer = PlacementStoriesSerializer(data = request.data)
+        if placement_stories_serializer.is_valid():
+            placement_stories_serializer.save()
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed to Add", safe=False)
+    
+    elif request.method == 'GET':
+        placement_stories = PlacementStories.objects.all()
+        placement_stories_serializer = PlacementStoriesSerializer(placement_stories, many=True)
+        return JsonResponse(placement_stories_serializer.data, safe=False)
+    
+    elif request.method == 'PUT':
+        placement_stories_data = request.data
+        placement_stories = PlacementStories.objects.get(id=id)
+        placement_stories_serializer = PlacementStoriesSerializer(placement_stories, data=placement_stories_data)
+        if placement_stories_serializer.is_valid():
+            placement_stories_serializer.save()
+            return JsonResponse("Updated Successfully", safe=False)
+        return JsonResponse("Failed to Update", safe=False)
+    
+    elif request.method == 'DELETE':
+        try:
+            placement_stories = PlacementStories.objects.get(id=id)
+            placement_stories.delete()
+            return JsonResponse("Deleted Successfully", safe=False)
+        except courses.DoesNotExist:
+            return JsonResponse("Account does not exist", status=404, safe=False)
+
+# FAQ Api
+
+@csrf_exempt
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@parser_classes([MultiPartParser])
+def FaqApi(request, id=0):
+    
+    if request.method == 'POST':
+        faq_serializer = FaqSerializer(data = request.data)
+        if faq_serializer.is_valid():
+            faq_serializer.save()
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed to Add", safe=False)
+    
+    elif request.method == 'GET':
+        faq = FAQ.objects.all()
+        faq_serializer = FaqSerializer(faq, many=True)
+        return JsonResponse(faq_serializer.data, safe=False)
+    
+    elif request.method == 'PUT':
+        faq_data = request.data
+        faq = FAQ.objects.get(id=id)
+        faq_serializer = FaqSerializer(faq, data=faq_data)
+        if faq_serializer.is_valid():
+            faq_serializer.save()
+            return JsonResponse("Updated Successfully", safe=False)
+        return JsonResponse("Failed to Update", safe=False)
+    
+    elif request.method == 'DELETE':
+        try:
+            faq_serializer = FAQ.objects.get(id=id)
+            faq_serializer.delete()
+            return JsonResponse("Deleted Successfully", safe=False)
+        except courses.DoesNotExist:
+            return JsonResponse("Account does not exist", status=404, safe=False)
+
+# Blog Api
+
+@csrf_exempt
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@parser_classes([MultiPartParser])
+def BlogApi(request, id=0):
+    
+    if request.method == 'POST':
+        blog_serializer = BlogSerializer(data = request.data)
+        if blog_serializer.is_valid():
+            blog_serializer.save()
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed to Add", safe=False)
+    
+    elif request.method == 'GET':
+        blog = Blog.objects.all()
+        blog_serializer = BlogSerializer(blog, many=True)
+        return JsonResponse(blog_serializer.data, safe=False)
+    
+    elif request.method == 'PUT':
+        blog_data = request.data
+        blog = Blog.objects.get(id=id)
+        blog_serializer = BlogSerializer(blog, data=blog_data)
+        if blog_serializer.is_valid():
+            blog_serializer.save()
+            return JsonResponse("Updated Successfully", safe=False)
+        return JsonResponse("Failed to Update", safe=False)
+    
+    elif request.method == 'DELETE':
+        try:
+            blog_serializer = Blog.objects.get(id=id)
+            blog_serializer.delete()
+            return JsonResponse("Deleted Successfully", safe=False)
+        except courses.DoesNotExist:
+            return JsonResponse("Account does not exist", status=404, safe=False)
+
+# Careers Api
+
+@csrf_exempt
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@parser_classes([MultiPartParser])
+def CareerApi(request, id=0):
+    
+    if request.method == 'POST':
+        career_serializer = CareerSerializer(data = request.data)
+        if career_serializer.is_valid():
+            career_serializer.save()
+            return JsonResponse("Added Successfully", safe=False)
+        return JsonResponse("Failed to Add", safe=False)
+    
+    elif request.method == 'GET':
+        career = Careers.objects.all()
+        career_serializer = CareerSerializer(career, many=True)
+        return JsonResponse(career_serializer.data, safe=False)
+    
+    elif request.method == 'PUT':
+        career_data = request.data
+        career = Careers.objects.get(id=id)
+        career_serializer = CareerSerializer(career, data=career_data)
+        if career_serializer.is_valid():
+            career_serializer.save()
+            return JsonResponse("Updated Successfully", safe=False)
+        return JsonResponse("Failed to Update", safe=False)
+    
+    elif request.method == 'DELETE':
+        try:
+            career_serializer = Careers.objects.get(id=id)
+            career_serializer.delete()
+            return JsonResponse("Deleted Successfully", safe=False)
+        except courses.DoesNotExist:
+            return JsonResponse("Account does not exist", status=404, safe=False)

@@ -1,66 +1,77 @@
 <html>
-    {% extends 'Admin_Login_App/base.html' %}
+{% extends 'Admin_Login_App/base.html' %}
 
-    {% load static %}
+{% load static %}
 
-    {% load bootstrap_icons %}
+{% load bootstrap_icons %}
 
-    {% block title %} Administration {% endblock %}
+{% block title %} Administration {% endblock %}
 
-    {% block css %} 
-        <link rel="stylesheet" href="{% static 'css/AdminLogin1.css' %}">
-    {% endblock %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/AdminLogin1.css' %}">
+{% endblock %}
 
-    {% block content %}
-    <!-- navigation -->
-    <div class="container-fluid">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid-md ps-4">
-                <div class="row">
+{% block content %}
+<!-- navigation -->
+<div class="container-fluid">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid-md ps-4">
+            <div class="row">
                 <div class="col p-2 title" id="logo">
                     <a class="navbar-brand" href="#">
                         <img src="{% static '/images/logo.png' %}">
                     </a>
                 </div>
-                </div>
             </div>
-        </nav>
-    </div>
-    
-    <!-- AdminLogin page -->
-    <div class="container-fluid admin-main-div">
-        <div class="container-fluid ps-2 pe-2">
-            <div class="admin-login-div">
-                <div class="login-details-div">
-                    <h6>{% bs_icon 'lock-fill' %}</i>Please enter your login details.</h6>
+        </div>
+    </nav>
+</div>
+
+<!-- AdminLogin page -->
+<div class="container-fluid admin-main-div">
+    <div class="container">
+        <div class="card mb-3">
+            <div class="row g-0">
+                <div class="col-6 col-md-6 border">
+                    <img src="{% static '/images/logo-1.png' %}" class="img-fluid rounded-start mx-auto d-block mt-5" alt="Nschool Logo">
                 </div>
-                <div class="input-div clearfix">
-                    {% if error %}
-                        <div class="alert alert-danger alert-div" role="alert">
-                            {% bs_icon 'info-circle-fill' %}{{ error }}
-                            <button type="button" class="btn-close btn-div" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="col-6 col-md-6 border">
+                    <div class="col-12 card-body">
+                        <div class="admin-login-div">
+                            <div class="input-div clearfix">
+                                {% if error %}
+                                <div class="alert alert-danger alert-div" role="alert">
+                                    {% bs_icon 'info-circle-fill' %}{{ error }}
+                                    <button type="button" class="btn-close btn-div" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                                {% endif %}
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <label for="Username" id="user">Username</label>
+                                    <div class="input-group flex-nowrap">
+                                        <span class="input-group-text" id="addon-wrapping">{% bs_icon 'person-fill' %}</span>
+                                        <input type="text" name="username" id="Username" value="{{username}}" class="form-control"
+                                            placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping" autocomplete="off">
+                                    </div>
+                                    <hr id="hr">
+                                    <label for="password" id="pass">Password</label>
+                                    <div class="input-group flex-nowrap">
+                                        <span class="input-group-text" id="addon-wrapping">{% bs_icon 'lock-fill' %}</span>
+                                        <input type="password" name="password" id="password" class="form-control" placeholder="Password"
+                                            aria-label="Username" aria-describedby="addon-wrapping">
+                                    </div>
+                                    <input type="submit" id="login-btn" value="Login" class="btn"></input>
+                                </form>
+                            </div>
                         </div>
-                    {% endif %}
-                    <form method="post">
-                        {% csrf_token %}
-                        <label for="Username" id="user">Username</label>
-                        <div class="input-group flex-nowrap">
-                            <span class="input-group-text" id="addon-wrapping">{% bs_icon 'person-fill' %}</span>
-                            <input type="text" name="username" id="Username" value="{{username}}" class="form-control" placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping" autocomplete="off">
-                        </div>
-                        <hr id="hr">
-                        <label for="password" id="pass">Password</label>
-                        <div class="input-group flex-nowrap">
-                            <span class="input-group-text" id="addon-wrapping">{% bs_icon 'lock-fill' %}</span>
-                            <input type="password" name="password" id="password" class="form-control" placeholder="Password" aria-label="Username" aria-describedby="addon-wrapping">
-                        </div>
-                        <input type="submit" id="login-btn" value="Login" class="btn"></input>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 
-    {% endblock %}
+{% endblock %}
+
 </html>
