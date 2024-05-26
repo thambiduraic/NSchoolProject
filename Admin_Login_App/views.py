@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseServer
 from django.contrib.auth import login, authenticate, logout
 from .forms import *
 from .models import *
-# from .utils.validation import validate_course_data
+
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import ObjectDoesNotExist
@@ -14,7 +14,17 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser, MultiPartParser
 from django.http import JsonResponse
 from Admin_Login_App.serializers import *
-from rest_framework.decorators import parser_classes, api_view
+from rest_framework.decorators import parser_classes, api_view, permission_classes, authentication_classes
+
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from knox.auth import AuthToken
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+# from .authentication import token_expire_handler, expires_in
+
+import logging
 
 # Create your views here.
 
@@ -56,37 +66,15 @@ def course_page_view(request):
 def navbar_save_view(request):
     return render(request, 'Admin_Login_App/navbar_save_course.html')
 
+def course_list_view(request):
+    return render(request, 'Admin_Login_App/course_list.html')
+
 # courses view
-@decorator_admin
+
 def courses_view(request):
-    # data = courses.objects.all()
     data = courses.objects.all().order_by('Title')
-    if request.method == 'POST':
-        try:
-            title = request.POST.get('Title')
-            description = request.POST.get('Description')
-            technologies = request.POST.get('Technologies')
-            images = request.FILES.get('images')
-            status = request.POST.get('status')
-            print(images)
-            courses_data = courses(
-                Title = title,
-                Description = description,
-                Technologies = technologies,
-                Images = images,
-                status = status,
-            )
-            courses_data.save()
-
-            return redirect('courses')
-        
-        except Exception as e:
-            print("Error saving courses:", e)
-    
-    paginator = Paginator(data, 5)  # Show 5 contacts per page.
-
+    paginator = Paginator(data, 5)
     page_number = request.GET.get("page")
-
     try:
         page_obj = paginator.page(page_number)
     except PageNotAnInteger:
@@ -96,8 +84,6 @@ def courses_view(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         page_obj = paginator.page(paginator.num_pages)
     return render(request, 'Admin_Login_App/courses.html', {'page_obj': page_obj})
-
-    # return render(request, 'Admin_Login_App/courses.html', {'datas': data, "page_obj": page_obj})  
 
 # courses update
 def update_course(request, id):
@@ -111,7 +97,6 @@ def update_course(request, id):
         status = request.POST.get('status')
         images = request.FILES.get('Images')
 
-        print(title)
 
         # Update the attributes of the existing course object
         course.Title = title
@@ -141,24 +126,24 @@ def delete_course(request, id):
 # ----------------------------------------------------------
 
 # Partners view
-@decorator_admin
+
 def partners_view(request):
     form = partners_logo.objects.all().order_by('name')
-    if request.method == 'POST':
-        try:
-            name = request.POST.get('student_name')
-            images = request.POST.FILES.get('picture')
+    # if request.method == 'POST':
+    #     try:
+    #         name = request.POST.get('student_name')
+    #         images = request.POST.FILES.get('picture')
             
-            partners_data = Testimonial(
-                name=name,
-                images=images,
-            )
-            partners_data.save()
+    #         partners_data = Testimonial(
+    #             name=name,
+    #             images=images,
+    #         )
+    #         partners_data.save()
 
-            # Redirect to the 'testimonial_list' page after successful form submission
-            return redirect('partners')
-        except Exception as e:
-            print("Error saving partners:", e)
+    #         # Redirect to the 'testimonial_list' page after successful form submission
+    #         return redirect('partners')
+    #     except Exception as e:
+    #         print("Error saving partners:", e)
 
     paginator = Paginator(form, 5)  # Show 5 contacts per page.
 
@@ -201,7 +186,7 @@ def partners_logo_view(request):
 # ----------------------------------------------------------------------------------------------------
 
 # testimonial_view
-@decorator_admin
+
 def testimonial_view(request):
     # testimonials = Testimonial.objects.all()
     testimonials = Testimonial.objects.all().order_by('student_name')
@@ -276,7 +261,7 @@ def update_testimonial(request, id):
 
 
 # Placement Stories
-@decorator_admin
+
 def Placement_Stories_view(request):
     form = PlacementStories.objects.all().order_by('student_name')
     if request.method == 'POST':
@@ -347,7 +332,7 @@ def update_stories(request, id):
     return render(request, 'Admin_Login_App/stories_update.html', {'datas': data})
 
 # FAQ
-@decorator_admin
+
 def faq(request):
     data = FAQ.objects.all().order_by('question')
     if request.method == 'POST':
@@ -382,7 +367,16 @@ def faq(request):
 
 
 def faq_add_form(request):
-    return render(request, 'Admin_Login_App/faq_add_form.html')
+    if request.method == 'POST':
+        form = FaqForm(request.POST)
+        if form.is_valid():
+            # Process the form data (e.g., save to the database)
+            form.save()
+            # Redirect to a success page or render a different template
+            return redirect('faq')  # Assuming you have a URL named 'success'
+    else:
+        form = FaqForm()
+    return render(request, 'Admin_Login_App/faq_add_form.html', {'form': form})
 
 # faq form update
 
@@ -413,7 +407,7 @@ def faq_form_update(request, id):
 
 
 # blog_view
-@decorator_admin
+
 def blog_view(request):
     data = Blog.objects.all()
     if request.method == 'POST':
@@ -468,7 +462,7 @@ def update_blog(request, id):
     return render(request, 'Admin_Login_App/update_blog.html', {'datas': data})
 
 # carrers view
-@decorator_admin
+
 def Careers_view(request):
     data = Careers.objects.all().order_by('Job_Heading')
     if request.method == 'POST':
@@ -599,45 +593,8 @@ def report_view(request):
 # admin login view    
 
 def admin_login_view(request):
-    error_message = None  # Initialize error variable
-    username = ""  # Initialize username variable
-
-    if request.method == 'POST':
-        # Get the input data from the form
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-
-        # Check if username or password is empty
-        if username and not password or not username and password:
-            error_message = 'No match for Username and/or Password'
-
-        elif not username or not password:
-            error_message = 'Username and Password are required.'
-        
-        else:
-            # Authenticate the user
-            user = authenticate(username=username, password=password)
-
-            if user is not None:
-                # Check if the user account is active
-                if user.is_active:
-                    # Log in the user
-                    login(request, user)
-                    
-                    # Redirect based on user role
-                    if user.is_admin:
-                        return redirect('dashboard')  # Redirect to admin home page
-                    else:
-                        return redirect('admin_login')  # Redirect to user home page
-                else:
-                    # User account is inactive
-                    error_message = 'Your account is inactive. Please contact support for assistance.'
-            else:
-                # Authentication failed
-                error_message = 'Invalid Username or Password'
-
     # Render the login page with the error message if any
-    return render(request, 'Admin_Login_App/AdminLogin.html', {'error': error_message, 'username':username})
+    return render(request, 'Admin_Login_App/AdminLogin.html')
 
 
 # register view
@@ -691,6 +648,51 @@ def user_logout(request):
         logout(request)
     return redirect('home')
 
+# admin login api
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def admin_login_api(request):    
+    un = request.data.get('username')
+    pw = request.data.get('password')
+
+    try:
+        admin_login = AdminLogin.objects.get(username=un)
+    except AdminLogin.DoesNotExist:
+        return Response({'error': 'Username does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = authenticate(username=un, password=pw)
+    
+    if user is None or not user.is_staff:
+        return Response({'error': 'Invalid username or password'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    _, token = AuthToken.objects.create(user)
+
+    
+    return Response({
+            'user_info': {
+                'id' : user.id,
+                'username' : user.username,
+                'email' : user.email,
+            },
+            'token' : token
+        }, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+def get_user_data(request):
+    user = request.user
+
+    if user.is_authenticated:
+        return Response({
+            'user_info': {
+                'id' : user.id,
+                'username' : user.username,
+                'email' : user.email,
+            },
+        })
+
+    return Response({'error': 'not authenticated'}, status=400)
 
 # course api
 
@@ -698,35 +700,48 @@ def user_logout(request):
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @parser_classes([MultiPartParser])
 def courseApi(request, id=0):
+    # Check authentication
+    if not request.user.is_authenticated:
+        return Response({'error': 'not authenticated'}, status=400)
     
     if request.method == 'POST':
-        course_serializer = CourseSerializer(data = request.data)
+        course_serializer = CourseSerializer(data=request.data)
         if course_serializer.is_valid():
             course_serializer.save()
-            return JsonResponse("Added Successfully", safe=False)
-        return JsonResponse("Failed to Add", safe=False)
-    
+            return Response("Added Successfully")
+        return Response(course_serializer.errors, status=400)
+
     elif request.method == 'GET':
-        course = courses.objects.all()
-        course_serializer = CourseSerializer(course, many=True)
-        return JsonResponse(course_serializer.data, safe=False)
-    
+        if id == 0:
+            course = courses.objects.all()
+            course_serializer = CourseSerializer(course, many=True)
+            return Response(course_serializer.data)
+        else:
+            try:
+                course = courses.objects.get(id=id)
+                course_serializer = CourseSerializer(course)
+                return Response(course_serializer.data)
+            except courses.DoesNotExist:
+                return Response("Course does not exist", status=404)
+
     elif request.method == 'PUT':
-        course_data = request.data
-        course = courses.objects.get(id=id)
-        course_serializer = CourseSerializer(course, data=course_data)
-        if course_serializer.is_valid():
-            course_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", safe=False)
-    
+        try:
+            course = courses.objects.get(id=id)
+            course_serializer = CourseSerializer(course, data=request.data)
+            if course_serializer.is_valid():
+                course_serializer.save()
+                return Response("Updated Successfully")
+            return Response(course_serializer.errors, status=400)
+        except courses.DoesNotExist:
+            return Response("Course does not exist", status=404)
+
     elif request.method == 'DELETE':
         try:
-            account = courses.objects.get(id=id)
-            account.delete()
-            return JsonResponse("Deleted Successfully", safe=False)
+            course = courses.objects.get(id=id)
+            course.delete()
+            return Response("Deleted Successfully")
         except courses.DoesNotExist:
-            return JsonResponse("Account does not exist", status=404, safe=False)
+            return Response("Course does not exist", status=404)
 
 # Placement Partners Api
 
@@ -734,35 +749,46 @@ def courseApi(request, id=0):
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @parser_classes([MultiPartParser])
 def placementPartnersApi(request, id=0):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            placement_partners_serializer = PlacementPartnersSerializer(data = request.data)
+            if placement_partners_serializer.is_valid():
+                placement_partners_serializer.save()
+                return JsonResponse("Added Successfully", safe=False)
+            return JsonResponse("Failed to Add", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+
+    if request.user.is_authenticated:    
+        if request.method == 'GET':
+            partners = partners_logo.objects.all()
+            placement_partners_serializer = PlacementPartnersSerializer(partners, many=True)
+            return JsonResponse(placement_partners_serializer.data, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
     
-    if request.method == 'POST':
-        placement_partners_serializer = PlacementPartnersSerializer(data = request.data)
-        if placement_partners_serializer.is_valid():
-            placement_partners_serializer.save()
-            return JsonResponse("Added Successfully", safe=False)
-        return JsonResponse("Failed to Add", safe=False)
-    
-    elif request.method == 'GET':
-        partners = partners_logo.objects.all()
-        placement_partners_serializer = PlacementPartnersSerializer(partners, many=True)
-        return JsonResponse(placement_partners_serializer.data, safe=False)
-    
-    elif request.method == 'PUT':
-        partners_data = request.data
-        partners = partners_logo.objects.get(id=id)
-        placement_partners_serializer = PlacementPartnersSerializer(partners, data=partners_data)
-        if placement_partners_serializer.is_valid():
-            placement_partners_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", safe=False)
-    
-    elif request.method == 'DELETE':
-        try:
+    if request.user.is_authenticated:
+        if request.method == 'PUT':
+            partners_data = request.data
             partners = partners_logo.objects.get(id=id)
-            partners.delete()
-            return JsonResponse("Deleted Successfully", safe=False)
-        except courses.DoesNotExist:
-            return JsonResponse("Account does not exist", status=404, safe=False)
+            placement_partners_serializer = PlacementPartnersSerializer(partners, data=partners_data)
+            if placement_partners_serializer.is_valid():
+                placement_partners_serializer.save()
+                return JsonResponse("Updated Successfully", safe=False)
+            return JsonResponse("Failed to Update", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+        
+    if request.user.is_authenticated:
+        if request.method == 'DELETE':
+            try:
+                partners = partners_logo.objects.get(id=id)
+                partners.delete()
+                return JsonResponse("Deleted Successfully", safe=False)
+            except courses.DoesNotExist:
+                return JsonResponse("Account does not exist", status=404, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
 
 
 # Testimonial Api
@@ -771,35 +797,46 @@ def placementPartnersApi(request, id=0):
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @parser_classes([MultiPartParser])
 def testimonialApi(request, id=0):
-    
-    if request.method == 'POST':
-        testimonial_serializer = TestimonialSerializer(data = request.data)
-        if testimonial_serializer.is_valid():
-            testimonial_serializer.save()
-            return JsonResponse("Added Successfully", safe=False)
-        return JsonResponse("Failed to Add", safe=False)
-    
-    elif request.method == 'GET':
-        testimonial = Testimonial.objects.all()
-        testimonial_serializer = TestimonialSerializer(testimonial, many=True)
-        return JsonResponse(testimonial_serializer.data, safe=False)
-    
-    elif request.method == 'PUT':
-        testimonial_data = request.data
-        testimonial = Testimonial.objects.get(id=id)
-        testimonial_serializer = TestimonialSerializer(testimonial, data=testimonial_data)
-        if testimonial_serializer.is_valid():
-            testimonial_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", safe=False)
-    
-    elif request.method == 'DELETE':
-        try:
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            testimonial_serializer = TestimonialSerializer(data = request.data)
+            if testimonial_serializer.is_valid():
+                testimonial_serializer.save()
+                return JsonResponse("Added Successfully", safe=False)
+            return JsonResponse("Failed to Add", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+        
+    if request.user.is_authenticated:
+        if request.method == 'GET':
+            testimonial = Testimonial.objects.all()
+            testimonial_serializer = TestimonialSerializer(testimonial, many=True)
+            return JsonResponse(testimonial_serializer.data, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+        
+    if request.user.is_authenticated:
+        if request.method == 'PUT':
+            testimonial_data = request.data
             testimonial = Testimonial.objects.get(id=id)
-            testimonial.delete()
-            return JsonResponse("Deleted Successfully", safe=False)
-        except courses.DoesNotExist:
-            return JsonResponse("Account does not exist", status=404, safe=False)
+            testimonial_serializer = TestimonialSerializer(testimonial, data=testimonial_data)
+            if testimonial_serializer.is_valid():
+                testimonial_serializer.save()
+                return JsonResponse("Updated Successfully", safe=False)
+            return JsonResponse("Failed to Update", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400) 
+
+    if request.user.is_authenticated:   
+        if request.method == 'DELETE':
+            try:
+                testimonial = Testimonial.objects.get(id=id)
+                testimonial.delete()
+                return JsonResponse("Deleted Successfully", safe=False)
+            except courses.DoesNotExist:
+                return JsonResponse("Account does not exist", status=404, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
 
 # PlacementStories Api
 
@@ -808,34 +845,46 @@ def testimonialApi(request, id=0):
 @parser_classes([MultiPartParser])
 def placementStoriesApi(request, id=0):
     
-    if request.method == 'POST':
-        placement_stories_serializer = PlacementStoriesSerializer(data = request.data)
-        if placement_stories_serializer.is_valid():
-            placement_stories_serializer.save()
-            return JsonResponse("Added Successfully", safe=False)
-        return JsonResponse("Failed to Add", safe=False)
-    
-    elif request.method == 'GET':
-        placement_stories = PlacementStories.objects.all()
-        placement_stories_serializer = PlacementStoriesSerializer(placement_stories, many=True)
-        return JsonResponse(placement_stories_serializer.data, safe=False)
-    
-    elif request.method == 'PUT':
-        placement_stories_data = request.data
-        placement_stories = PlacementStories.objects.get(id=id)
-        placement_stories_serializer = PlacementStoriesSerializer(placement_stories, data=placement_stories_data)
-        if placement_stories_serializer.is_valid():
-            placement_stories_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", safe=False)
-    
-    elif request.method == 'DELETE':
-        try:
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            placement_stories_serializer = PlacementStoriesSerializer(data = request.data)
+            if placement_stories_serializer.is_valid():
+                placement_stories_serializer.save()
+                return JsonResponse("Added Successfully", safe=False)
+            return JsonResponse("Failed to Add", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+
+    if request.user.is_authenticated:
+        if request.method == 'GET':
+            placement_stories = PlacementStories.objects.all()
+            placement_stories_serializer = PlacementStoriesSerializer(placement_stories, many=True)
+            return JsonResponse(placement_stories_serializer.data, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+
+    if request.user.is_authenticated:
+        if request.method == 'PUT':
+            placement_stories_data = request.data
             placement_stories = PlacementStories.objects.get(id=id)
-            placement_stories.delete()
-            return JsonResponse("Deleted Successfully", safe=False)
-        except courses.DoesNotExist:
-            return JsonResponse("Account does not exist", status=404, safe=False)
+            placement_stories_serializer = PlacementStoriesSerializer(placement_stories, data=placement_stories_data)
+            if placement_stories_serializer.is_valid():
+                placement_stories_serializer.save()
+                return JsonResponse("Updated Successfully", safe=False)
+            return JsonResponse("Failed to Update", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+    
+    if request.user.is_authenticated:
+        if request.method == 'DELETE':
+            try:
+                placement_stories = PlacementStories.objects.get(id=id)
+                placement_stories.delete()
+                return JsonResponse("Deleted Successfully", safe=False)
+            except courses.DoesNotExist:
+                return JsonResponse("Account does not exist", status=404, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
 
 # FAQ Api
 
@@ -843,35 +892,46 @@ def placementStoriesApi(request, id=0):
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @parser_classes([MultiPartParser])
 def FaqApi(request, id=0):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            faq_serializer = FaqSerializer(data = request.data)
+            if faq_serializer.is_valid():
+                faq_serializer.save()
+                return JsonResponse("Added Successfully", safe=False)
+            return JsonResponse("Failed to Add", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
     
-    if request.method == 'POST':
-        faq_serializer = FaqSerializer(data = request.data)
-        if faq_serializer.is_valid():
-            faq_serializer.save()
-            return JsonResponse("Added Successfully", safe=False)
-        return JsonResponse("Failed to Add", safe=False)
+    if request.user.is_authenticated:
+        if request.method == 'GET':
+            faq = FAQ.objects.all()
+            faq_serializer = FaqSerializer(faq, many=True)
+            return JsonResponse(faq_serializer.data, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
     
-    elif request.method == 'GET':
-        faq = FAQ.objects.all()
-        faq_serializer = FaqSerializer(faq, many=True)
-        return JsonResponse(faq_serializer.data, safe=False)
+    if request.user.is_authenticated:
+        if request.method == 'PUT':
+            faq_data = request.data
+            faq = FAQ.objects.get(id=id)
+            faq_serializer = FaqSerializer(faq, data=faq_data)
+            if faq_serializer.is_valid():
+                faq_serializer.save()
+                return JsonResponse("Updated Successfully", safe=False)
+            return JsonResponse("Failed to Update", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
     
-    elif request.method == 'PUT':
-        faq_data = request.data
-        faq = FAQ.objects.get(id=id)
-        faq_serializer = FaqSerializer(faq, data=faq_data)
-        if faq_serializer.is_valid():
-            faq_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", safe=False)
-    
-    elif request.method == 'DELETE':
-        try:
-            faq_serializer = FAQ.objects.get(id=id)
-            faq_serializer.delete()
-            return JsonResponse("Deleted Successfully", safe=False)
-        except courses.DoesNotExist:
-            return JsonResponse("Account does not exist", status=404, safe=False)
+    if request.user.is_authenticated:
+        if request.method == 'DELETE':
+            try:
+                faq_serializer = FAQ.objects.get(id=id)
+                faq_serializer.delete()
+                return JsonResponse("Deleted Successfully", safe=False)
+            except courses.DoesNotExist:
+                return JsonResponse("Account does not exist", status=404, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
 
 # Blog Api
 
@@ -879,35 +939,46 @@ def FaqApi(request, id=0):
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @parser_classes([MultiPartParser])
 def BlogApi(request, id=0):
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            blog_serializer = BlogSerializer(data = request.data)
+            if blog_serializer.is_valid():
+                blog_serializer.save()
+                return JsonResponse("Added Successfully", safe=False)
+            return JsonResponse("Failed to Add", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
     
-    if request.method == 'POST':
-        blog_serializer = BlogSerializer(data = request.data)
-        if blog_serializer.is_valid():
-            blog_serializer.save()
-            return JsonResponse("Added Successfully", safe=False)
-        return JsonResponse("Failed to Add", safe=False)
+    if request.user.is_authenticated:
+        if request.method == 'GET':
+            blog = Blog.objects.all()
+            blog_serializer = BlogSerializer(blog, many=True)
+            return JsonResponse(blog_serializer.data, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
     
-    elif request.method == 'GET':
-        blog = Blog.objects.all()
-        blog_serializer = BlogSerializer(blog, many=True)
-        return JsonResponse(blog_serializer.data, safe=False)
+    if request.user.is_authenticated:
+        if request.method == 'PUT':
+            blog_data = request.data
+            blog = Blog.objects.get(id=id)
+            blog_serializer = BlogSerializer(blog, data=blog_data)
+            if blog_serializer.is_valid():
+                blog_serializer.save()
+                return JsonResponse("Updated Successfully", safe=False)
+            return JsonResponse("Failed to Update", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
     
-    elif request.method == 'PUT':
-        blog_data = request.data
-        blog = Blog.objects.get(id=id)
-        blog_serializer = BlogSerializer(blog, data=blog_data)
-        if blog_serializer.is_valid():
-            blog_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", safe=False)
-    
-    elif request.method == 'DELETE':
-        try:
-            blog_serializer = Blog.objects.get(id=id)
-            blog_serializer.delete()
-            return JsonResponse("Deleted Successfully", safe=False)
-        except courses.DoesNotExist:
-            return JsonResponse("Account does not exist", status=404, safe=False)
+    if request.user.is_authenticated:
+        if request.method == 'DELETE':
+            try:
+                blog_serializer = Blog.objects.get(id=id)
+                blog_serializer.delete()
+                return JsonResponse("Deleted Successfully", safe=False)
+            except courses.DoesNotExist:
+                return JsonResponse("Account does not exist", status=404, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
 
 # Careers Api
 
@@ -915,32 +986,50 @@ def BlogApi(request, id=0):
 @api_view(['GET', 'POST', 'PUT', 'DELETE'])
 @parser_classes([MultiPartParser])
 def CareerApi(request, id=0):
-    
-    if request.method == 'POST':
-        career_serializer = CareerSerializer(data = request.data)
-        if career_serializer.is_valid():
-            career_serializer.save()
-            return JsonResponse("Added Successfully", safe=False)
-        return JsonResponse("Failed to Add", safe=False)
-    
-    elif request.method == 'GET':
-        career = Careers.objects.all()
-        career_serializer = CareerSerializer(career, many=True)
-        return JsonResponse(career_serializer.data, safe=False)
-    
-    elif request.method == 'PUT':
-        career_data = request.data
-        career = Careers.objects.get(id=id)
-        career_serializer = CareerSerializer(career, data=career_data)
-        if career_serializer.is_valid():
-            career_serializer.save()
-            return JsonResponse("Updated Successfully", safe=False)
-        return JsonResponse("Failed to Update", safe=False)
-    
-    elif request.method == 'DELETE':
-        try:
-            career_serializer = Careers.objects.get(id=id)
-            career_serializer.delete()
-            return JsonResponse("Deleted Successfully", safe=False)
-        except courses.DoesNotExist:
-            return JsonResponse("Account does not exist", status=404, safe=False)
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            career_serializer = CareerSerializer(data = request.data)
+            if career_serializer.is_valid():
+                career_serializer.save()
+                return JsonResponse("Added Successfully", safe=False)
+            return JsonResponse("Failed to Add", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+
+    if request.user.is_authenticated:
+        if request.method == 'GET':
+            career = Careers.objects.all()
+            career_serializer = CareerSerializer(career, many=True)
+            return JsonResponse(career_serializer.data, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+
+    if request.user.is_authenticated:    
+        if request.method == 'PUT':
+            career_data = request.data
+            career = Careers.objects.get(id=id)
+            career_serializer = CareerSerializer(career, data=career_data)
+            if career_serializer.is_valid():
+                career_serializer.save()
+                return JsonResponse("Updated Successfully", safe=False)
+            return JsonResponse("Failed to Update", safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)
+
+    if request.user.is_authenticated:    
+        if request.method == 'DELETE':
+            try:
+                career_serializer = Careers.objects.get(id=id)
+                career_serializer.delete()
+                return JsonResponse("Deleted Successfully", safe=False)
+            except courses.DoesNotExist:
+                return JsonResponse("Account does not exist", status=404, safe=False)
+    else:
+        return Response({'error': 'not authenticated'}, status=400)    
+
+
+
+# testing purpose
+
+def course_page(request):
+    return render(request, 'Admin_Login_App/course.html')

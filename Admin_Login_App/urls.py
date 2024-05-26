@@ -1,12 +1,14 @@
 from django.urls import path
 from . import views
-from django.conf import settings
-from django.conf.urls.static import static
 
 urlpatterns = [
     path('home', views.home, name='home'),
 
     # api urls
+
+    # admin login
+    path('admin_login_api', views.admin_login_api, name='admin_login_api'),
+    path('user', views.admin_login_api),
 
     # course api
     path('course_api', views.courseApi, name='course_api'),
@@ -43,6 +45,14 @@ urlpatterns = [
     path('update_career_api/<int:id>', views.CareerApi, name='update_career_api'),
     path('delete_career_api/<int:id>', views.CareerApi, name='delete_career_api'),
 
+
+
+    path('course_list', views.course_list_view),
+
+    path('course', views.course_page, name='course-page'),
+
+
+
     path('dashboard', views.dashboard_view, name='dashboard'),
     path('courses', views.courses_view, name='courses'),
     path('course_page', views.course_page_view, name='course_page'),
@@ -74,4 +84,4 @@ urlpatterns = [
     path('logout', views.logout_view, name='logout'),
     path('user_logout', views.user_logout, name='user_logout'),
     path('report', views.report_view, name='report'),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]

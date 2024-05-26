@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Course Data</title>
+    <script>
+        async function fetchCourses() {
+            try {
+                const response = await fetch('course_api');
+                const data = await response.json();
+                const table = document.getElementById('course-table');
+
+                // Clear the table first
+                table.innerHTML = '';
+
+                // Create table header
+                const header = table.createTHead();
+                const headerRow = header.insertRow(0);
+                const headers = ['Title', 'Description', 'Technologies', 'Images', 'status'];
+                headers.forEach((headerText, index) => {
+                    const cell = headerRow.insertCell(index);
+                    cell.outerHTML = `<th>${headerText}</th>`;
+                });
+
+                // Create table body
+                const body = table.createTBody();
+                data.forEach((course, rowIndex) => {
+                    const row = body.insertRow(rowIndex);
+                    row.insertCell(0).textContent = course.Title;
+                    row.insertCell(1).textContent = course.Description;
+                    row.insertCell(2).textContent = course.Technologies;
+                    row.insertCell(3).textContent = course.Images;
+                    row.insertCell(3).textContent = course.status;
+                });
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchCourses();
+        });
+    </script>
+</head>
+<body>
+    <h1>Course Data</h1>
+    <table id="course-table" border="1">
+        <!-- Table will be populated here -->
+    </table>
+</body>
+</html>

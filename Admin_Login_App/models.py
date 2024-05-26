@@ -4,6 +4,8 @@ from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
+from ckeditor.fields import RichTextFormField
+
 # Create your models here.
 
 def getFileName(request,filename):
@@ -76,11 +78,14 @@ class AdminLogin(AbstractBaseUser):
 
 
 class courses(models.Model):
-    Title = models.CharField(max_length=100)
+    Title = models.CharField(max_length=100, null=False, blank=False)
     Description = models.TextField()
     Technologies = models.CharField(max_length=150)
     Images = models.ImageField(upload_to= getFileName, blank=False)
     status = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.Title
 
 class technologies(models.Model):
     Technologies = models.CharField(max_length=150)

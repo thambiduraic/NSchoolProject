@@ -7,18 +7,21 @@
 
 <!-- Link css -->
 {% block css %}
-<link rel="stylesheet" href="{% static 'css/Admin_Header.css' %}">
-<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
-<link rel="stylesheet" href="{% static 'css/side_navbar.css' %}">
+<link rel="stylesheet" href="{% static 'css/header.css' %}">
 <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
 <link rel="stylesheet" href="{% static 'css/course_page.css' %}">
 <link rel="stylesheet" href="{% static 'css/course_list.css' %}">
+<link href="{% static 'ckeditor/contents.css' %}" rel="stylesheet">
+
 {% endblock %}
 
 <!-- link js -->
 {% block link_js %}
 
+<script src="{% static 'ckeditor/ckeditor.js' %}"></script>
+
 {% endblock %}
+<!-- link js end -->
 
 <!-- header -->
 {% block header %}
@@ -75,6 +78,8 @@
 
 {% block scripts %}
 <script>
+
+
     // v1
     // Function to check all checkboxes
     function checkAll() {
@@ -87,7 +92,11 @@
     }
 
     function loadFaqPage() {
-        
+        function initCKEditor() {
+            console.log("CKEditor initialized");
+            CKEDITOR.replace('{{ form.answer.id_for_label }}');
+        }
+
         // Specify the URL from which to fetch the new content
         const url = "{% url 'faq_add_form' %}";
 
@@ -102,6 +111,8 @@
             .then(html => {
                 // Replace the HTML content of a specific div with the fetched data
                 document.getElementById('faq-content').innerHTML = html;
+                // document.addEventListener('DOMContentLoaded', initCKEditor);
+                initCKEditor();
             })
             .catch(error => console.error('Fetch error:', error));
     }
@@ -117,7 +128,7 @@
                 return response.text();
             })
             .then(html => {
-                
+
                 document.getElementById('faq-content').innerHTML = html;
             })
             .catch(error => console.error('Fetch error:', error));

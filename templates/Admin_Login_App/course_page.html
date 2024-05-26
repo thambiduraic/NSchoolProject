@@ -11,7 +11,7 @@
                         <h3 class="panel-title border-bottom pb-2"> {% bs_icon 'pencil' %}  <span class="Add_Course">Add Courses</span></h3>
                     </div>
                     <div class="panel-body bg-white px-3 py-3">
-                        <form method="POST" enctype="multipart/form-data">
+                        <form method="POST" action="{% url 'courses' %}" enctype="multipart/form-data">
                             {% csrf_token %}
                             <div class="form-group">
                                 <label for="title">Title</label>
@@ -21,7 +21,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="id_description">Description</label>
-                                <textarea id="id_description" name="Description" class="form-control"></textarea>
+                                <textarea id="id_description" name="Description" class="form-control django_ckeditor_5"></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="technologies">Technologies</label>
@@ -29,7 +29,9 @@
                             </div>
                             <div class="form-group">
                                 <label for="images">Images</label>
-                                <input type="file" name="images" id="images" accept="images/*" class="form-control-file">
+                                <input type="file" name="images" id="images" accept="image/*" class="form-control-file" 
+                                       onchange="checkFileSize(this)">
+                                <small class="form-text text-muted">Maximum file size: 5MB</small>
                             </div>
                             
                             <div class="form-group">
@@ -47,3 +49,12 @@
    
 </div>
 {% endblock %}
+
+<!-- Include CKEditor 5 JavaScript -->
+<script src="{% static 'ckeditor/ckeditor.js' %}"></script>
+<link href="{% static 'ckeditor/ckeditor.css' %}" rel="stylesheet">
+
+<script>
+    // Initialize CKEditor 5 on the textarea with id 'id_description'
+    CKEDITOR.replace('id_description');
+</script>

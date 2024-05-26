@@ -12,55 +12,60 @@
 {% endblock %}
 
 {% block content %}
-<!-- navigation -->
-<div class="container-fluid">
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid-md ps-4">
-            <div class="row">
-                <div class="col p-2 title" id="logo">
-                    <a class="navbar-brand" href="#">
-                        <img src="{% static '/images/logo.png' %}">
-                    </a>
-                </div>
-            </div>
-        </div>
-    </nav>
-</div>
-
 <!-- AdminLogin page -->
 <div class="container-fluid admin-main-div">
+    <div class="z-n1 position-absolute img-div">
+        <img src="{% static 'images/wave1.svg' %}" alt="wave">
+    </div>
     <div class="container">
         <div class="card mb-3">
             <div class="row g-0">
-                <div class="col-6 col-md-6 border">
+                <div class="col-6 col-md-6 border left-div">
                     <img src="{% static '/images/logo-1.png' %}" class="img-fluid rounded-start mx-auto d-block mt-5" alt="Nschool Logo">
+                    <div class="admin-div">
+                        <img src="{% static '/images/Admin_image.png' %}" class="admin-img" alt="Admin img">
+                    </div>
                 </div>
-                <div class="col-6 col-md-6 border">
+                <div class="col-6 col-md-6">
                     <div class="col-12 card-body">
                         <div class="admin-login-div">
                             <div class="input-div clearfix">
-                                {% if error %}
-                                <div class="alert alert-danger alert-div" role="alert">
-                                    {% bs_icon 'info-circle-fill' %}{{ error }}
-                                    <button type="button" class="btn-close btn-div" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>
-                                {% endif %}
-                                <form method="post">
+                                
+                                <form id="login-form" action="{% url 'admin_login_api' %}" method="post" class="form-div">
+                                    <div>
+                                        <p>Login as a admin user</p>
+                                    </div>
                                     {% csrf_token %}
-                                    <label for="Username" id="user">Username</label>
-                                    <div class="input-group flex-nowrap">
-                                        <span class="input-group-text" id="addon-wrapping">{% bs_icon 'person-fill' %}</span>
-                                        <input type="text" name="username" id="Username" value="{{username}}" class="form-control"
-                                            placeholder="Username" aria-label="Username" aria-describedby="addon-wrapping" autocomplete="off">
+
+                                    <div class="user-input-wrp">
+                                       
+                                        <input type="text" name="username" id="username" value="{{username}}" class="form-control inputText"
+                                             aria-label="Username" aria-describedby="addon-wrapping" autocomplete="off" autofocus>
+                                        <span class="floating-label">Username</span>
                                     </div>
-                                    <hr id="hr">
-                                    <label for="password" id="pass">Password</label>
-                                    <div class="input-group flex-nowrap">
-                                        <span class="input-group-text" id="addon-wrapping">{% bs_icon 'lock-fill' %}</span>
-                                        <input type="password" name="password" id="password" class="form-control" placeholder="Password"
+                                    
+                                    <!-- user error message -->
+                                    <span class="text-danger span_div" id="user_error"></span>
+                                    
+
+                                    <div class="user-input-wrp">
+                                        
+                                        <input type="password" name="password" id="password" class="form-control"
                                             aria-label="Username" aria-describedby="addon-wrapping">
+                                        <span class="floating-label">Password</span>
                                     </div>
-                                    <input type="submit" id="login-btn" value="Login" class="btn"></input>
+                                    
+                                    <span class="text-danger span_div" id="pass_error"></span>
+
+                                    <span class="text-danger span_div" id="error-message"></span>
+                                   
+
+                                    <input type="submit" value="Login" class="btn login-btn"></input>
+
+                                    <!-- New form error handling -->
+                                    {% if error %}
+                                        <div class="text-danger">{{ error }}</div>
+                                    {% endif %}
                                 </form>
                             </div>
                         </div>
@@ -72,6 +77,69 @@
 </div>
 
 
+{% endblock %}
+
+{% block scripts %}
+<!-- Add JavaScript code at the end of the HTML template -->
+<script>
+    document.getElementById("login-form").addEventListener("submit", function(event) {
+        event.preventDefault(); // Prevent form submission
+
+        // Get username and password from form inputs
+        var username = document.getElementById("username").value.trim(); // Trim to remove whitespace
+        var password = document.getElementById("password").value.trim();
+
+        // Validation: Check if username and password are not empty
+        if (username === "" ) {
+            document.getElementById("user_error").innerHTML = "Username is required"; 
+            return;
+        }
+        else
+        {
+            document.getElementById("user_error").innerHTML = "";
+        }
+        if (password === "") {
+            document.getElementById("pass_error").innerHTML = "Password is required"; 
+            return;
+        }
+        else
+        {
+            document.getElementById("pass_error").innerHTML = "";
+        }
+        
+
+        // Create data object to send in the POST request
+        var data = {
+            username: username,
+            password: password
+        };
+
+        // Make a POST request to the API endpoint
+        fetch("admin_login_api", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle response from the API
+            if (data.token) {
+                // If login successful, redirect to another page or perform other actions
+                window.location.href = "dashboard";
+            } else {
+                // If login failed, display error message
+                var errorMessage = data.non_field_errors ? data.non_field_errors[0] : "Invalid username or password";
+                document.getElementById("error-message").innerText = errorMessage;
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            // Handle error (e.g., display error message)
+        });
+    });
+</script>
 {% endblock %}
 
 </html>

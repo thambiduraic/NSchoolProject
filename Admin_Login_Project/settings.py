@@ -20,7 +20,7 @@ TEMPLATES_DIR = os.path.join(BASE_DIR1, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR1, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
+STATIC_ROOT = os.path.join(STATIC_DIR, 'ckeditor')
 
 
 # Quick-start development settings - unsuitable for production
@@ -36,6 +36,17 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "Admin_Login_App.AdminLogin"
 
+CKEDITOR_UPLOAD_PATH = 'content/ckeditor/'
+
+# CKEditor Settings
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 300,
+        'extraPlugins': ','.join(['codesnippet',]),
+        # Add more configuration options as needed
+    }
+}
 
 # Application definition
 
@@ -50,6 +61,9 @@ INSTALLED_APPS = [
     'django_phonenumbers',
     'bootstrap5',
     'django_bootstrap_icons',
+    'rest_framework',
+    'knox',
+    'ckeditor',
 ]
 
 MIDDLEWARE = [
@@ -89,7 +103,7 @@ WSGI_APPLICATION = 'Admin_Login_Project.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "mydatabase",
+        "NAME": "NschoolAdmin",
         "USER": "postgres",
         "PASSWORD": "Durai@1604",
         "HOST": "127.0.0.1",
@@ -141,3 +155,31 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication', ),
+
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "handlers": {
+#         "file": {
+#             "level": "DEBUG",
+#             "class": "logging.FileHandler",
+#             "filename": "/path/to/django/debug.log",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["file"],
+#             "level": "DEBUG",
+#             "propagate": True,
+#         },
+#     },
+# }

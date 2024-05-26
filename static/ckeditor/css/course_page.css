@@ -1,0 +1,16 @@
+.form-group {
+    margin-bottom: 10px;
+}
+
+.Add_Course {
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.form-control:focus {
+    color: #212529;
+    background-color: #fff !important;
+    border-color: none;
+    outline: 0;
+    box-shadow: 0 0 0 .25rem #fff !important;
+}

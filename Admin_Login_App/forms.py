@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from ckeditor.widgets import CKEditorWidget  # Import CKEditorWidget
 from .models import *
 
 class RegistrationForm(forms.ModelForm):
@@ -11,7 +12,6 @@ class RegistrationForm(forms.ModelForm):
 
     def save(self, commit=True):
         # Save the provided password in hashed format
-
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
 
@@ -19,7 +19,6 @@ class RegistrationForm(forms.ModelForm):
             user.save()
 
         return user
-    
 
 class PartnersLogoForm(forms.ModelForm):
     class Meta:
@@ -33,7 +32,10 @@ class UpdataCourseForm(forms.Form):
     Images = forms.ImageField()
     status = forms.BooleanField()
 
-class FaqForm(forms.Form):
+class FaqForm(forms.ModelForm):  # Change to ModelForm
     class Meta:
         model = FAQ
         fields = ['question', 'answer']
+        widgets = {
+            'answer': CKEditorWidget()  # Use CKEditorWidget for 'answer' field
+        }

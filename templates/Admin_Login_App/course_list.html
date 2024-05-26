@@ -13,59 +13,8 @@
                 </div>
                 <div class="panel-body bg-white px-3 py-3">
 
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
+                    <table class="table table-bordered" id="course-table">
 
-                                <th scope="col" class="text-center"><input type="checkbox" id="checkall"
-                                        onclick="checkAll()"></th>
-
-                                <th scope="col">Title</th>
-
-                                <th scope="col">Description</th>
-
-                                <th scope="col">Technologies</th>
-
-                                <th scope="col">Images</th>
-
-                                <th scope="col">status</th>
-
-                                <th scope="col" class="text-end">Action</th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-
-                            {% for x in page_obj %}
-                            <tr>
-
-                                <td class="text-center"><input type="checkbox" class="check" name="id" value="{{x.id}}">
-                                </td>
-
-                                <td>{{x.Title}}</td>
-
-                                <td>{{x.Description}}</td>
-
-                                <td>{{x.Technologies}}</td>
-                                
-                                <td>
-                                    {% if x.Images %}
-                                        <img src="{{ x.Images.url }}" alt="Current Image" style="max-height: 50px;">
-                                    {% else %}
-                                        <p>No image available</p>
-                                    {% endif %}
-                                </td>
-
-                                <td>{{x.status}}</td>
-
-
-                                <td class="text-end">
-                                    <button onclick="updateCoursePage(`{% url 'update_course' x.id %}`)"
-                                        class="btn btn-class">{% bs_icon 'pencil' %}</button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
                     </table>
                     <div class="pagination">
                         <span class="step-links">
@@ -90,4 +39,83 @@
     </div>
 
 </div>
+
+<script>
+    async function updateCourse(courseId) {
+        try {
+            const token = '29744b5ec21956514887fbdf09c56dea3de795464cdc6d6186538b1a2b8ebf2b'; 
+
+            // Construct the request parameters
+            const requestOptions = {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Token ${token}`, 
+                    'Content-Type': 'application/json'
+                },
+            };
+
+            const response = await fetch(`/update_course_api/${courseId}`, requestOptions);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+        } catch (error) {
+            console.error('There was a problem with the fetch operation:', error);
+        }
+    }
+
+    async function fetchCourses() {
+        try {
+            const response = await fetch('course_api',
+                {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Token 29744b5ec21956514887fbdf09c56dea3de795464cdc6d6186538b1a2b8ebf2b'
+                    }
+                });
+
+            const data = await response.json();
+            const table = document.getElementById('course-table');
+
+            // Clear the table first
+            table.innerHTML = '';
+
+            // Create table header
+            const header = table.createTHead();
+            const headerRow = header.insertRow(0);
+            const headers = ['ID','Title', 'Description', 'Technologies', 'Images', 'status', 'Action'];
+            headers.forEach((headerText, index) => {
+                const cell = headerRow.insertCell(index);
+                cell.outerHTML = `<th>${headerText}</th>`;
+            });
+
+            // Create table body
+            const body = table.createTBody();
+
+            data.forEach((course, rowIndex) => {
+                const row = body.insertRow(rowIndex);
+                row.insertCell(0).textContent = course.Title;
+                row.insertCell(1).textContent = course.Description;
+                row.insertCell(2).textContent = course.Technologies;
+                row.insertCell(3).textContent = course.Images;
+                row.insertCell(4).textContent = course.status;
+                const updateButtonCell = row.insertCell(5); // Added Actions cell
+                const updateButton = document.createElement('button');
+                updateButton.textContent = 'Update'; // Button text
+                updateButton.addEventListener('click', () => {
+                    // // Add your update action here, for example:
+                    // window.location.href = `/update_course_api/${course.id}`;
+                    updateCourse(course.id);
+                });
+
+                updateButtonCell.appendChild(updateButton);
+            });
+        } catch (error) {
+            console.error('Error fetching courses:', error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchCourses();
+    });
+</script>
 {% endblock %}

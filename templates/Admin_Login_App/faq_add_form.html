@@ -13,7 +13,8 @@
                     <div class="panel-body bg-white px-3 py-3">
                         <form method="post">
                             {% csrf_token %}
-                            <div class="form-group">
+                            {{ form.as_p|safe }}
+                            <!-- <div class="form-group">
                                 <label for="title">Question</label>
                                 <div>
                                     <input type="text" name="question" id="title" class="form-control" autocomplete="off">
@@ -23,13 +24,17 @@
                                 <label for="id_description">Answer</label>
                                 <textarea id="id_description" name="answer" class="form-control"></textarea>
                             </div>
-                            
+                             -->
                             <button type="submit" class="btn btn-primary">Submit</button>
                         </form>
+                        <!-- <script>
+                            CKEDITOR.replace('{{ form.answer.id_for_label }}');
+                        </script> -->
                     </div>
                 </div>
             </div>
         </div>
    
 </div>
+
 {% endblock %}
